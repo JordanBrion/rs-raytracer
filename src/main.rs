@@ -7,9 +7,24 @@ use ray::*;
 use vec3::*;
 
 fn color(ray: &Ray) -> Vec3 {
-    let unit_direction = ray.direction.unit_vector();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
+    if hit_sphere(ray) {
+        Vec3::new(1.0, 0.0, 0.0)
+    } else {
+        let unit_direction = ray.direction.unit_vector();
+        let t = 0.5 * (unit_direction.y + 1.0);
+        (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
+    }
+}
+
+fn hit_sphere(ray: &Ray) -> bool {
+    let sphere_position = Vec3::new(0.0, 0.0, -1.0);
+    let sphere_radius = 0.5;
+    let rs = ray.origin - sphere_position;
+    let a = ray.direction.dot(&ray.direction);
+    let b = 2.0 * rs.dot(&ray.direction);
+    let c = rs.dot(&rs) - sphere_radius * sphere_radius;
+    let discriminant = b*b - 4.0*a*c;
+    discriminant > 0.0
 }
 
 fn main() {
