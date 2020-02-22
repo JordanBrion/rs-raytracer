@@ -10,7 +10,7 @@ use std::ops::Neg;
 use std::ops::Sub;
 use std::ops::SubAssign;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
