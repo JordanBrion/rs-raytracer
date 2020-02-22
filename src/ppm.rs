@@ -11,8 +11,8 @@ pub struct RGB {
 }
  
 pub struct PPM {
-    height: u32,
-    width: u32,
+    pub height: u32,
+    pub width: u32,
     data: Vec<u8>,
 }
  
