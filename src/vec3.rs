@@ -42,7 +42,14 @@ impl Vec3 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
-    pub fn make_unit_vector(&self) -> Vec3 {
+    pub fn make_unit_vector(&mut self) {
+        let length = self.length();
+        self.x /= length;
+        self.y /= length;
+        self.z /= length;
+    }
+
+    pub fn unit_vector(&self) -> Vec3 {
         (*self).clone() / self.length()
     }
 
