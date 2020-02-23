@@ -2,19 +2,19 @@ mod ppm;
 mod ray;
 mod vec3;
 mod sphere;
+mod hittable;
+mod world;
 
 use ppm::*;
 use ray::*;
 use vec3::*;
 use sphere::*;
+use world::*;
+use hittable::*;
 
-fn color(ray: &Ray) -> Vec3 {
-    let sphere = Sphere { center: Vec3::new(0.0, 0.0, -1.0), radius: 0.5 };
-    let t = ray.hit(&sphere);
-    if t > 0.0 {
-        let point_collision = ray.point_at_parameter(t);
-        let normal = (point_collision - sphere.center).unit_vector();
-        normal.make_color()
+fn color(ray: &Ray, world: &World) -> Vec3 {
+    if let Some(record) = world.hit(ray, 0.0, std::f32::MAX) {
+        record.normal.make_color()
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -28,6 +28,7 @@ fn main() {
     let horizontal = Vec3::new(4.0, 0.0, 0.0);
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::new(0.0, 0.0, 0.0);
+    let world = World::new();
 
     for j in 0..ppm.height {
         for i in 0..ppm.width {
@@ -37,7 +38,7 @@ fn main() {
                 origin: origin,
                 direction: lower_left_corner + u * horizontal + v * vertical,
             };
-            let c = color(&ray);
+            let c = color(&ray, &world);
             let ir = (255.99 * c.r()) as u8;
             let ig = (255.99 * c.g()) as u8;
             let ib = (255.99 * c.b()) as u8;
