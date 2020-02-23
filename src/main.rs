@@ -30,7 +30,7 @@ fn random_in_unit_sphere() -> Vec3 {
 }
 
 fn color(ray: &Ray, world: &World) -> Vec3 {
-    if let Some(record) = world.hit(ray, 0.0, std::f32::MAX) {
+    if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
         let target = record.p + record.normal + random_in_unit_sphere();
         0.5 * color(&Ray::new(record.p, target - record.p), world)
     } else {
