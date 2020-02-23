@@ -1,16 +1,21 @@
+extern crate rand;
+
+mod camera;
+mod hittable;
 mod ppm;
 mod ray;
-mod vec3;
 mod sphere;
-mod hittable;
+mod vec3;
 mod world;
 
+use camera::*;
+use hittable::*;
 use ppm::*;
 use ray::*;
-use vec3::*;
 use sphere::*;
+use vec3::*;
 use world::*;
-use hittable::*;
+use rand::Rng;
 
 fn color(ray: &Ray, world: &World) -> Vec3 {
     if let Some(record) = world.hit(ray, 0.0, std::f32::MAX) {
@@ -22,23 +27,28 @@ fn color(ray: &Ray, world: &World) -> Vec3 {
     }
 }
 
+fn random_number() -> f32 {
+    let mut rng = rand::thread_rng();
+    rng.gen::<f32>()
+}
+
 fn main() {
     let mut ppm = PPM::new(100, 200);
-    let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
-    let horizontal = Vec3::new(4.0, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, 2.0, 0.0);
-    let origin = Vec3::new(0.0, 0.0, 0.0);
+    let camera = Camera::new();
     let world = World::new();
+    let samples = 100;
 
     for j in 0..ppm.height {
         for i in 0..ppm.width {
-            let u = i as f32 / ppm.width as f32;
-            let v = j as f32 / ppm.height as f32;
-            let ray = Ray {
-                origin: origin,
-                direction: lower_left_corner + u * horizontal + v * vertical,
-            };
-            let c = color(&ray, &world);
+            let mut c = Vec3::new(0.0, 0.0, 0.0);
+            for s in 0..samples {
+                let u = (i as f32 + random_number()) / ppm.width as f32;
+                let v = (j as f32 + random_number()) / ppm.height as f32;
+                let ray = camera.get_ray(u, v);
+                c += color(&ray, &world);
+            }
+            c /= samples as f32;
+
             let ir = (255.99 * c.r()) as u8;
             let ig = (255.99 * c.g()) as u8;
             let ib = (255.99 * c.b()) as u8;
