@@ -1,30 +1,25 @@
 mod ppm;
 mod ray;
 mod vec3;
+mod sphere;
 
 use ppm::*;
 use ray::*;
 use vec3::*;
+use sphere::*;
 
 fn color(ray: &Ray) -> Vec3 {
-    if hit_sphere(ray) {
-        Vec3::new(1.0, 0.0, 0.0)
+    let sphere = Sphere { center: Vec3::new(0.0, 0.0, -1.0), radius: 0.5 };
+    let t = ray.hit(&sphere);
+    if t > 0.0 {
+        let point_collision = ray.point_at_parameter(t);
+        let normal = (point_collision - sphere.center).unit_vector();
+        normal.make_color()
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
     }
-}
-
-fn hit_sphere(ray: &Ray) -> bool {
-    let sphere_position = Vec3::new(0.0, 0.0, -1.0);
-    let sphere_radius = 0.5;
-    let rs = ray.origin - sphere_position;
-    let a = ray.direction.dot(&ray.direction);
-    let b = 2.0 * rs.dot(&ray.direction);
-    let c = rs.dot(&rs) - sphere_radius * sphere_radius;
-    let discriminant = b*b - 4.0*a*c;
-    discriminant > 0.0
 }
 
 fn main() {

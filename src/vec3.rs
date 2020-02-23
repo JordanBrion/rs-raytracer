@@ -64,6 +64,10 @@ impl Vec3 {
             self.x * other.y - self.y * other.x,
         )
     }
+
+    pub fn make_color(&self) -> Self {
+        0.5 * Self::new(self.x + 1.0, self.y + 1.0, self.z + 1.0)
+    }
 }
 
 impl Neg for Vec3 {
