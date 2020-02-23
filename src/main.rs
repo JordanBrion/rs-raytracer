@@ -61,6 +61,7 @@ fn main() {
                 c += color(&ray, &world);
             }
             c /= samples as f32;
+            c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
 
             let ir = (255.99 * c.r()) as u8;
             let ig = (255.99 * c.g()) as u8;
