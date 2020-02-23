@@ -11,15 +11,28 @@ mod world;
 use camera::*;
 use hittable::*;
 use ppm::*;
+use rand::Rng;
 use ray::*;
 use sphere::*;
 use vec3::*;
 use world::*;
-use rand::Rng;
+
+fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p =
+            2.0 * Vec3::new(random_number(), random_number(), random_number()) - Vec3::new(1.0, 1.0, 1.0);
+        if p.squared_length() >= 1.0 {
+            continue;
+        } else {
+            return p;
+        }
+    }
+}
 
 fn color(ray: &Ray, world: &World) -> Vec3 {
     if let Some(record) = world.hit(ray, 0.0, std::f32::MAX) {
-        record.normal.make_color()
+        let target = record.p + record.normal + random_in_unit_sphere();
+        0.5 * color(&Ray::new(record.p, target - record.p), world)
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -41,7 +54,7 @@ fn main() {
     for j in 0..ppm.height {
         for i in 0..ppm.width {
             let mut c = Vec3::new(0.0, 0.0, 0.0);
-            for s in 0..samples {
+            for _ in 0..samples {
                 let u = (i as f32 + random_number()) / ppm.width as f32;
                 let v = (j as f32 + random_number()) / ppm.height as f32;
                 let ray = camera.get_ray(u, v);
