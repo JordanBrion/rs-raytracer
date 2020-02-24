@@ -1,23 +1,25 @@
 use super::hittable::*;
+use super::material::*;
 use super::ray::*;
 use super::vec3::*;
 
-pub struct Sphere {
+pub struct Sphere<'a> {
     pub center: Vec3,
     pub radius: f32,
+    pub material: &'a dyn Material,
 }
 
-impl Sphere {
-
-    pub fn new(center: Vec3, radius: f32) -> Sphere {
+impl<'a> Sphere<'a> {
+    pub fn new(center: Vec3, radius: f32, material: &'a dyn Material) -> Sphere<'a> {
         Sphere {
             center: center,
-            radius: radius
+            radius: radius,
+            material: material,
         }
     }
 }
 
-impl Hittable for Sphere {
+impl<'a> Hittable for Sphere<'a> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let rs = ray.origin - self.center;
         let a = ray.direction.dot(&ray.direction);
@@ -31,7 +33,8 @@ impl Hittable for Sphere {
                 return Some(HitRecord {
                     t: temp,
                     p: hit_point,
-                    normal: (hit_point - self.center) / self.radius
+                    normal: (hit_point - self.center) / self.radius,
+                    material: self.material
                 });
             }
             let temp = (-b - discriminant.sqrt()) / a;
@@ -40,10 +43,11 @@ impl Hittable for Sphere {
                 return Some(HitRecord {
                     t: temp,
                     p: hit_point,
-                    normal: (hit_point - self.center) / self.radius
+                    normal: (hit_point - self.center) / self.radius,
+                    material: self.material
                 });
             }
-        } 
+        }
         return None;
     }
 }

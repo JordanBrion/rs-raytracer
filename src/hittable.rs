@@ -1,10 +1,12 @@
 use super::vec3::*;
 use super::ray::*;
+use super::material::*;
 
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     pub t: f32,
     pub p: Vec3,
-    pub normal: Vec3
+    pub normal: Vec3,
+    pub material: &'a dyn Material
 }
 
 pub trait Hittable {

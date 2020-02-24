@@ -68,6 +68,16 @@ impl Vec3 {
     pub fn make_color(&self) -> Self {
         0.5 * Self::new(self.x + 1.0, self.y + 1.0, self.z + 1.0)
     }
+
+    pub fn reflect(light_in: Vec3, normal: Vec3) -> Vec3 {
+        light_in - 2.0 * light_in.dot(&normal) * normal
+    }
+}
+
+impl Default for Vec3 {
+    fn default() -> Self {
+        Vec3::new(0.0, 0.0, 0.0)
+    }
 }
 
 impl Neg for Vec3 {

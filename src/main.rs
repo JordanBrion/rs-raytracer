@@ -1,4 +1,3 @@
-extern crate rand;
 
 mod camera;
 mod hittable;
@@ -7,42 +6,33 @@ mod ray;
 mod sphere;
 mod vec3;
 mod world;
+mod material;
+mod random;
 
 use camera::*;
 use hittable::*;
 use ppm::*;
-use rand::Rng;
 use ray::*;
 use sphere::*;
 use vec3::*;
 use world::*;
+use material::*;
+use random::*;
 
-fn random_in_unit_sphere() -> Vec3 {
-    loop {
-        let p =
-            2.0 * Vec3::new(random_number(), random_number(), random_number()) - Vec3::new(1.0, 1.0, 1.0);
-        if p.squared_length() >= 1.0 {
-            continue;
+fn color<'a>(ray: &Ray, world: &'a World, depth: i32) -> Vec3 {
+    if let Some(record) = world.hit::<'a>(ray, 0.001, std::f32::MAX) {
+        let mut scattered = Default::default();
+        let mut attenuation = Default::default();
+        if depth < 50 && record.material.scatter(ray, &record, &mut attenuation, &mut scattered) {
+            attenuation * color(&scattered, world, depth+1)
         } else {
-            return p;
+            Vec3::new(0.0, 0.0, 0.0)
         }
-    }
-}
-
-fn color(ray: &Ray, world: &World) -> Vec3 {
-    if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
-        let target = record.p + record.normal + random_in_unit_sphere();
-        0.5 * color(&Ray::new(record.p, target - record.p), world)
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
     }
-}
-
-fn random_number() -> f32 {
-    let mut rng = rand::thread_rng();
-    rng.gen::<f32>()
 }
 
 fn main() {
@@ -58,7 +48,7 @@ fn main() {
                 let u = (i as f32 + random_number()) / ppm.width as f32;
                 let v = (j as f32 + random_number()) / ppm.height as f32;
                 let ray = camera.get_ray(u, v);
-                c += color(&ray, &world);
+                c += color(&ray, &world, 0);
             }
             c /= samples as f32;
             c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());

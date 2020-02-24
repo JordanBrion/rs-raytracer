@@ -18,3 +18,9 @@ impl Ray {
         self.origin + t * self.direction
     }
 }
+
+impl Default for Ray {
+    fn default() -> Self {
+        Ray::new(Default::default(), Default::default())
+    }
+}
