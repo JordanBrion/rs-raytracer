@@ -1,4 +1,3 @@
-
 mod camera;
 mod hittable;
 mod ppm;
@@ -19,8 +18,8 @@ use world::*;
 use material::*;
 use random::*;
 
-fn color<'a>(ray: &Ray, world: &'a World, depth: i32) -> Vec3 {
-    if let Some(record) = world.hit::<'a>(ray, 0.001, std::f32::MAX) {
+fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
+    if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
         let mut scattered = Default::default();
         let mut attenuation = Default::default();
         if depth < 50 && record.material.scatter(ray, &record, &mut attenuation, &mut scattered) {
@@ -38,7 +37,8 @@ fn color<'a>(ray: &Ray, world: &'a World, depth: i32) -> Vec3 {
 fn main() {
     let mut ppm = PPM::new(100, 200);
     let camera = Camera::new();
-    let world = World::new();
+    let materials = Materials::new();
+    let world = World::new(&materials);
     let samples = 100;
 
     for j in 0..ppm.height {
