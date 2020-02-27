@@ -9,6 +9,7 @@ pub struct Lambertian {
 
 pub struct Metal {
     pub albedo: Vec3,
+    fuzz: f32,
 }
 
 pub struct Materials {
@@ -16,16 +17,21 @@ pub struct Materials {
     pub v_lambertians: std::vec::Vec<Lambertian>,
 }
 
+impl Metal {
+    fn new(albedo: Vec3, fuzz: f32) -> Metal {
+        Metal {
+            albedo: albedo,
+            fuzz: if fuzz > 1.0 { 1.0 } else { fuzz },
+        }
+    }
+}
+
 impl Materials {
     pub fn new() -> Materials {
         Materials {
             v_metals: vec![
-                Metal {
-                    albedo: Vec3::new(0.8, 0.6, 0.2),
-                },
-                Metal {
-                    albedo: Vec3::new(0.8, 0.8, 0.8),
-                },
+                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3),
+                Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0),
             ],
             v_lambertians: vec![
                 Lambertian {
@@ -73,7 +79,7 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let reflected = Vec3::reflect(ray.direction.unit_vector(), record.normal);
-        *scattered = Ray::new(record.p, reflected);
+        *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere());
         *attenuation = self.albedo;
         scattered.direction.dot(&record.normal) > 0.0
     }
