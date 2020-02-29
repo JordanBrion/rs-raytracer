@@ -1,28 +1,32 @@
 mod camera;
 mod hittable;
+mod material;
 mod ppm;
+mod random;
 mod ray;
 mod sphere;
 mod vec3;
 mod world;
-mod material;
-mod random;
 
 use camera::*;
 use hittable::*;
+use material::*;
 use ppm::*;
+use random::*;
 use ray::*;
 use vec3::*;
 use world::*;
-use material::*;
-use random::*;
 
 fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
     if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
         let mut scattered = Default::default();
         let mut attenuation = Default::default();
-        if depth < 50 && record.material.scatter(ray, &record, &mut attenuation, &mut scattered) {
-            attenuation * color(&scattered, world, depth+1)
+        if depth < 50
+            && record
+                .material
+                .scatter(ray, &record, &mut attenuation, &mut scattered)
+        {
+            attenuation * color(&scattered, world, depth + 1)
         } else {
             Vec3::new(0.0, 0.0, 0.0)
         }
@@ -35,9 +39,10 @@ fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
 
 fn main() {
     let mut ppm = PPM::new(100, 200);
-    let camera = Camera::new();
+    let r = (std::f64::consts::PI as f32 / 4.0).cos();
+    let camera = Camera::new(90.0, ppm.width as f32 / ppm.height as f32);
     let materials = Materials::new();
-    let world = World::new(&materials);
+    let world = World::new(&materials, r);
     let samples = 100;
 
     for j in 0..ppm.height {

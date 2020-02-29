@@ -34,19 +34,16 @@ impl Metal {
 impl Materials {
     pub fn new() -> Materials {
         Materials {
-            v_metals: vec![
-                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0),
-                Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0),
-            ],
+            v_metals: Default::default(),
             v_lambertians: vec![
                 Lambertian {
-                    albedo: Vec3::new(0.1, 0.2, 0.5),
+                    albedo: Vec3::new(0.0, 0.0, 1.0),
                 },
                 Lambertian {
-                    albedo: Vec3::new(0.8, 0.8, 0.0),
+                    albedo: Vec3::new(1.0, 0.0, 0.0),
                 },
             ],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_dielectrics: Default::default(),
         }
     }
 }
