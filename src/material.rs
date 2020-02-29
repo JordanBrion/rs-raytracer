@@ -13,7 +13,7 @@ pub struct Metal {
 }
 
 pub struct Dielectric {
-    ref_idx: f32
+    ref_idx: f32,
 }
 
 pub struct Materials {
@@ -46,11 +46,7 @@ impl Materials {
                     albedo: Vec3::new(0.8, 0.8, 0.0),
                 },
             ],
-            v_dielectrics: vec![
-                Dielectric {
-                    ref_idx: 1.5
-                }
-            ]
+            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
         }
     }
 }
@@ -95,6 +91,14 @@ impl Material for Metal {
     }
 }
 
+impl Dielectric {
+    fn schlick(&self, cosine: f32) -> f32 {
+        let r0 = (1.0 - self.ref_idx) / (1.0 + self.ref_idx);
+        let r0_squared = r0 * r0;
+        r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5)
+    }
+}
+
 impl Material for Dielectric {
     fn scatter(
         &self,
@@ -103,23 +107,34 @@ impl Material for Dielectric {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
-        let reflected = ray.direction.reflect(record.normal);
         *attenuation = Vec3::new(1.0, 1.0, 1.0);
-        let outward_normal : Vec3;
-        let ni_over_nt : f32;
-        if ray.direction.dot(&record.normal) > 0.0 {
+        let reflected = ray.direction.reflect(record.normal);
+        let d_dot_n = ray.direction.dot(&record.normal);
+        let outward_normal: Vec3;
+        let ni_over_nt: f32;
+        let reflect_prob;
+        let cosine;
+        if d_dot_n > 0.0 {
             outward_normal = -record.normal;
             ni_over_nt = self.ref_idx;
+            cosine = self.ref_idx * d_dot_n / ray.direction.length();
         } else {
-                outward_normal = record.normal;
-                ni_over_nt = 1.0 / self.ref_idx;
+            outward_normal = record.normal;
+            ni_over_nt = 1.0 / self.ref_idx;
+            cosine = -d_dot_n / ray.direction.length();
         }
-        if let Some(refracted) = ray.direction.refract(outward_normal, ni_over_nt) {
-            *scattered = Ray::new(record.p, refracted);
-            true
+        let refracted = if let Some(r) = ray.direction.refract(outward_normal, ni_over_nt) {
+            reflect_prob = self.schlick(cosine);
+            r
         } else {
+            reflect_prob = 1.0;
+            Vec3::new(0.0, 0.0, 0.0)
+        };
+        if random_number() < reflect_prob {
             *scattered = Ray::new(record.p, reflected);
-            false
+        } else {
+            *scattered = Ray::new(record.p, refracted);
         }
+        true
     }
 }
