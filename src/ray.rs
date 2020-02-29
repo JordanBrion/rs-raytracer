@@ -1,5 +1,4 @@
 use super::vec3::*;
-use super::sphere::*;
 
 pub struct Ray {
     pub origin: Vec3,

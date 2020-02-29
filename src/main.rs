@@ -12,7 +12,6 @@ use camera::*;
 use hittable::*;
 use ppm::*;
 use ray::*;
-use sphere::*;
 use vec3::*;
 use world::*;
 use material::*;

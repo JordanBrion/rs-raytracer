@@ -69,8 +69,8 @@ impl Vec3 {
         0.5 * Self::new(self.x + 1.0, self.y + 1.0, self.z + 1.0)
     }
 
-    pub fn reflect(light_in: Vec3, normal: Vec3) -> Vec3 {
-        light_in - 2.0 * light_in.dot(&normal) * normal
+    pub fn reflect(&self, normal: Vec3) -> Vec3 {
+        (*self) - 2.0 * self.dot(&normal) * normal
     }
 
     pub fn refract(&self, n: Vec3, ni_over_nt: f32) -> Option<Vec3> {
