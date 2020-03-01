@@ -40,12 +40,16 @@ fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
 fn main() {
     let mut ppm = PPM::new(100, 200);
     let r = (std::f64::consts::PI as f32 / 4.0).cos();
+    let look_from = Vec3::new(3.0, 3.0, 2.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
     let camera = Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -1.0),
+        look_from,
+        look_at,
         Vec3::new(0.0, 1.0, 0.0),
-        50.0,
+        20.0,
         ppm.width as f32 / ppm.height as f32,
+        2.0,
+        (look_from - look_at).length(),
     );
     let materials = Materials::new();
     let world = World::new(&materials, r);
