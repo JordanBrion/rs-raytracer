@@ -130,7 +130,7 @@ impl Material for Dielectric {
             reflect_prob = 1.0;
             Vec3::new(0.0, 0.0, 0.0)
         };
-        if random_number() < reflect_prob {
+        if random_double() < reflect_prob {
             *scattered = Ray::new(record.p, reflected);
         } else {
             *scattered = Ray::new(record.p, refracted);

@@ -62,8 +62,8 @@ fn main() {
         for i in 0..ppm.width {
             let mut c = Vec3::new(0.0, 0.0, 0.0);
             for _ in 0..samples {
-                let u = (i as f32 + random_number()) / ppm.width as f32;
-                let v = (j as f32 + random_number()) / ppm.height as f32;
+                let u = (i as f32 + random_double()) / ppm.width as f32;
+                let v = (j as f32 + random_double()) / ppm.height as f32;
                 let ray = camera.get_ray(u, v);
                 c += color(&ray, &world, 0);
             }
