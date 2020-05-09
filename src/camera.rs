@@ -1,6 +1,7 @@
 use super::random::*;
 use super::ray::*;
 use super::vec3::*;
+use super::constants::*;
 
 pub struct Camera {
     pub origin: Vec3,
@@ -23,7 +24,7 @@ impl Camera {
         aperture: f32,
         focus_dist: f32,
     ) -> Camera {
-        let theta = (vfov / 180.0) * std::f64::consts::PI as f32;
+        let theta = (vfov / 180.0) * PI;
         let half_height = (theta * 0.5).tan();
         let half_width = aspect * half_height;
         let view_direction = look_at - look_from;

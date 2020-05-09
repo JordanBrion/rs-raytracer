@@ -7,6 +7,8 @@ mod ray;
 mod sphere;
 mod vec3;
 mod world;
+mod constants;
+mod angles;
 
 use camera::*;
 use hittable::*;
@@ -16,6 +18,7 @@ use random::*;
 use ray::*;
 use vec3::*;
 use world::*;
+use constants::*;
 
 fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
     if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
@@ -39,7 +42,7 @@ fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
 
 fn main() {
     let mut ppm = PPM::new(100, 200);
-    let r = (std::f64::consts::PI as f32 / 4.0).cos();
+    let r = (PI / 4.0).cos();
     let look_from = Vec3::new(3.0, 3.0, 2.0);
     let look_at = Vec3::new(0.0, 0.0, -1.0);
     let camera = Camera::new(
