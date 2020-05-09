@@ -29,23 +29,11 @@ impl<'a> Hittable for Sphere<'a> {
         if discriminant > 0.0 {
             let temp = (-b - discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
-                let hit_point = ray.point_at_parameter(temp);
-                return Some(HitRecord {
-                    t: temp,
-                    p: hit_point,
-                    normal: (hit_point - self.center) / self.radius,
-                    material: self.material
-                });
+                return Some(HitRecord::new(temp, self, ray));
             }
             let temp = (-b - discriminant.sqrt()) / a;
             if temp > t_min && temp < t_max {
-                let hit_point = ray.point_at_parameter(temp);
-                return Some(HitRecord {
-                    t: temp,
-                    p: hit_point,
-                    normal: (hit_point - self.center) / self.radius,
-                    material: self.material
-                });
+                return Some(HitRecord::new(temp, self, ray));
             }
         }
         return None;

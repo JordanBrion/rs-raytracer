@@ -1,12 +1,33 @@
-use super::vec3::*;
-use super::ray::*;
 use super::material::*;
+use super::ray::*;
+use super::sphere::*;
+use super::vec3::*;
 
 pub struct HitRecord<'a> {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
-    pub material: &'a dyn Material
+    pub front_face: bool,
+    pub material: &'a dyn Material,
+}
+
+impl<'a> HitRecord<'a> {
+    pub fn new(t: f32, sphere: &'a Sphere, ray: &Ray) -> HitRecord<'a> {
+        let hit_point = ray.point_at_parameter(t);
+        let outward_normal = (hit_point - sphere.center) / sphere.radius;
+        let front_face = ray.direction.dot(&outward_normal) < 0.0f32;
+        let final_normal = match front_face {
+            true => outward_normal,
+            false => -outward_normal,
+        };
+        HitRecord {
+            t: t,
+            p: hit_point,
+            normal: final_normal,
+            front_face: front_face,
+            material: sphere.material,
+        }
+    }
 }
 
 pub trait Hittable {
