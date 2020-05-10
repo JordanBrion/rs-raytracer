@@ -1,4 +1,8 @@
+extern crate num;
+
+mod angles;
 mod camera;
+mod constants;
 mod hittable;
 mod material;
 mod ppm;
@@ -7,10 +11,9 @@ mod ray;
 mod sphere;
 mod vec3;
 mod world;
-mod constants;
-mod angles;
 
 use camera::*;
+use constants::*;
 use hittable::*;
 use material::*;
 use ppm::*;
@@ -18,7 +21,6 @@ use random::*;
 use ray::*;
 use vec3::*;
 use world::*;
-use constants::*;
 
 fn color(x: f32, y: f32, z: f32) -> Vec3 {
     Vec3::new(x, y, z)
@@ -35,6 +37,18 @@ fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
         (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
+    }
+}
+
+fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
+    let scale = 1.0 / samples_per_pixel as f32;
+    let r_scaled = (scale * color.x).sqrt();
+    let g_scaled = (scale * color.y).sqrt();
+    let b_scaled = (scale * color.z).sqrt();
+    RGB {
+        r: (256.0 * num::clamp(r_scaled, 0.0, 0.999)) as u8,
+        g: (256.0 * num::clamp(g_scaled, 0.0, 0.999)) as u8,
+        b: (256.0 * num::clamp(b_scaled, 0.0, 0.999)) as u8,
     }
 }
 
@@ -66,23 +80,7 @@ fn main() {
                 let ray = camera.get_ray(u, v);
                 c += ray_color(&ray, &world, max_depth);
             }
-            c /= samples as f32;
-            c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
-
-            let ir = (255.99 * c.r()) as u8;
-            let ig = (255.99 * c.g()) as u8;
-            let ib = (255.99 * c.b()) as u8;
-
-            let final_y = ppm.height - j;
-            ppm.set_pixel(
-                i,
-                final_y,
-                RGB {
-                    r: ir,
-                    g: ig,
-                    b: ib,
-                },
-            );
+            ppm.set_pixel(i, ppm.height - j, gamma_correction(c, samples));
         }
     }
     ppm.write_file("test.ppm").expect("Cannot write ppm file!!");
