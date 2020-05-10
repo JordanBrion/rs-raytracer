@@ -20,19 +20,11 @@ use vec3::*;
 use world::*;
 use constants::*;
 
-fn color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
-    if let Some(record) = world.hit(ray, 0.001, std::f32::MAX) {
-        let mut scattered = Default::default();
-        let mut attenuation = Default::default();
-        if depth < 50
-            && record
-                .material
-                .scatter(ray, &record, &mut attenuation, &mut scattered)
-        {
-            attenuation * color(&scattered, world, depth + 1)
-        } else {
-            Vec3::new(0.0, 0.0, 0.0)
-        }
+fn ray_color(ray: &Ray, world: &World) -> Vec3 {
+    if let Some(record) = world.hit(ray, 0.0, INFINITY) {
+        let target = record.p + record.normal + random_in_unit_sphere();
+        let new_ray = Ray::new(record.p, target - record.p);
+        return 0.5 * ray_color(&new_ray, world);
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -65,7 +57,7 @@ fn main() {
                 let u = (i as f32 + random_double()) / ppm.width as f32;
                 let v = (j as f32 + random_double()) / ppm.height as f32;
                 let ray = camera.get_ray(u, v);
-                c += color(&ray, &world, 0);
+                c += ray_color(&ray, &world);
             }
             c /= samples as f32;
             c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());

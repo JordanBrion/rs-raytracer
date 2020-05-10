@@ -10,6 +10,8 @@ use std::ops::Neg;
 use std::ops::Sub;
 use std::ops::SubAssign;
 
+use super::random::*;
+
 #[derive(Copy, Clone)]
 pub struct Vec3 {
     pub x: f32,
@@ -81,6 +83,22 @@ impl Vec3 {
             Some(ni_over_nt * (uv - n * dt) - n * discriminant.sqrt())
         } else {
             None
+        }
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3 {
+            x: random_double(),
+            y: random_double(),
+            z: random_double(),
+        }
+    }
+
+    pub fn random_in_limit(min: f32, max: f32) -> Vec3 {
+        Vec3 {
+            x: random_double_in_limit(min, max),
+            y: random_double_in_limit(min, max),
+            z: random_double_in_limit(min, max),
         }
     }
 }

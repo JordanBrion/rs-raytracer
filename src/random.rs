@@ -5,8 +5,7 @@ use rand::Rng;
 
 pub fn random_in_unit_sphere() -> Vec3 {
     loop {
-        let p = 2.0 * Vec3::new(random_double(), random_double(), random_double())
-            - Vec3::new(1.0, 1.0, 1.0);
+        let p = Vec3::random_in_limit(-1.0, 1.0);
         if p.squared_length() >= 1.0 {
             continue;
         } else {
