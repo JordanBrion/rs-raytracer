@@ -20,15 +20,21 @@ use vec3::*;
 use world::*;
 use constants::*;
 
-fn ray_color(ray: &Ray, world: &World) -> Vec3 {
-    if let Some(record) = world.hit(ray, 0.0, INFINITY) {
+fn color(x: f32, y: f32, z: f32) -> Vec3 {
+    Vec3::new(x, y, z)
+}
+
+fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
+    if depth <= 0 {
+        return color(0.0, 0.0, 0.0);
+    } else if let Some(record) = world.hit(ray, 0.0, INFINITY) {
         let target = record.p + record.normal + random_in_unit_sphere();
         let new_ray = Ray::new(record.p, target - record.p);
-        return 0.5 * ray_color(&new_ray, world);
+        return 0.5 * ray_color(&new_ray, world, depth);
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
-        (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
+        (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
     }
 }
 
@@ -49,6 +55,7 @@ fn main() {
     let materials = Materials::new();
     let world = World::new(&materials, r);
     let samples = 100;
+    let max_depth = 50;
 
     for j in 0..ppm.height {
         for i in 0..ppm.width {
@@ -57,7 +64,7 @@ fn main() {
                 let u = (i as f32 + random_double()) / ppm.width as f32;
                 let v = (j as f32 + random_double()) / ppm.height as f32;
                 let ray = camera.get_ray(u, v);
-                c += ray_color(&ray, &world);
+                c += ray_color(&ray, &world, max_depth);
             }
             c /= samples as f32;
             c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
