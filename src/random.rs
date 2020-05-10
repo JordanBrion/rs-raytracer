@@ -1,5 +1,6 @@
 extern crate rand;
 
+use super::constants::*;
 use super::vec3::*;
 use rand::Rng;
 
@@ -30,4 +31,11 @@ pub fn random_in_unit_disk() -> Vec3 {
             return p;
         }
     }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    let a = random_double_in_limit(0.0, 2.0 * PI);
+    let z = random_double_in_limit(-1.0, 1.0);
+    let r = (1.0 - z * z).sqrt();
+    Vec3::new(r * a.cos(), r * a.sin(), z)
 }
