@@ -30,7 +30,7 @@ fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
     if depth <= 0 {
         return color(0.0, 0.0, 0.0);
     } else if let Some(record) = world.hit(ray, 0.0, INFINITY) {
-        let target = record.p + record.normal + random_unit_vector();
+        let target = record.p + record.normal + random_in_hemisphere(record.normal);
         let new_ray = Ray::new(record.p, target - record.p);
         return 0.5 * ray_color(&new_ray, world, depth);
     } else {
