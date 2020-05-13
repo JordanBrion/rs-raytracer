@@ -28,11 +28,18 @@ fn color(x: f32, y: f32, z: f32) -> Vec3 {
 
 fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
     if depth <= 0 {
-        return color(0.0, 0.0, 0.0);
-    } else if let Some(record) = world.hit(ray, 0.0, INFINITY) {
-        let target = record.p + record.normal + random_in_hemisphere(record.normal);
-        let new_ray = Ray::new(record.p, target - record.p);
-        return 0.5 * ray_color(&new_ray, world, depth);
+        Default::default()
+    } else if let Some(record) = world.hit(ray, 0.0001, INFINITY) {
+        let mut scattered = Default::default();
+        let mut attenuation = Default::default();
+        if record
+            .material
+            .scatter(&ray, &record, &mut attenuation, &mut scattered)
+        {
+            attenuation * ray_color(&scattered, world, depth - 1)
+        } else {
+            Default::default()
+        }
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
@@ -68,7 +75,7 @@ fn main() {
     );
     let materials = Materials::new();
     let world = World::new(&materials, r);
-    let samples = 100;
+    let samples = 5; //100;
     let max_depth = 50;
 
     for j in 0..ppm.height {
