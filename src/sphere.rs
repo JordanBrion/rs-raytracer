@@ -21,18 +21,19 @@ impl<'a> Sphere<'a> {
 
 impl<'a> Hittable for Sphere<'a> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        let rs = ray.origin - self.center;
-        let a = ray.direction.dot(&ray.direction);
-        let b = rs.dot(&ray.direction);
-        let c = rs.dot(&rs) - self.radius * self.radius;
-        let discriminant = b * b - a * c;
+        let oc = ray.origin - self.center;
+        let a = ray.direction.squared_length();
+        let half_b = oc.dot(&ray.direction);
+        let c = oc.squared_length() - self.radius * self.radius;
+        let discriminant = half_b * half_b - a * c;
         if discriminant > 0.0 {
-            let temp = (-b - discriminant.sqrt()) / a;
-            if temp > t_min && temp < t_max {
+            let root = discriminant.sqrt();
+            let temp = (-half_b - root) / a;
+            if temp < t_max && temp > t_min {
                 return Some(HitRecord::new(temp, self, ray));
             }
-            let temp = (-b - discriminant.sqrt()) / a;
-            if temp > t_min && temp < t_max {
+            let temp = (-half_b + root) / a;
+            if temp < t_max && temp > t_min {
                 return Some(HitRecord::new(temp, self, ray));
             }
         }
