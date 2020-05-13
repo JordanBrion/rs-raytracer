@@ -54,7 +54,7 @@ impl Materials {
 pub trait Material {
     fn scatter(
         &self,
-        ray: &Ray,
+        ray_in: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
@@ -64,13 +64,13 @@ pub trait Material {
 impl Material for Lambertian {
     fn scatter(
         &self,
-        ray: &Ray,
+        _ray_in: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
-        let target = record.p + record.normal + random_in_unit_sphere();
-        *scattered = Ray::new(record.p, target - record.p);
+        let scatter_direction = record.normal + random_in_unit_sphere();
+        *scattered = Ray::new(record.p, scatter_direction);
         *attenuation = self.albedo;
         true
     }
@@ -79,12 +79,12 @@ impl Material for Lambertian {
 impl Material for Metal {
     fn scatter(
         &self,
-        ray: &Ray,
+        ray_in: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
-        let reflected = ray.direction.unit_vector().reflect(record.normal);
+        let reflected = ray_in.direction.unit_vector().reflect(record.normal);
         *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere());
         *attenuation = self.albedo;
         scattered.direction.dot(&record.normal) > 0.0
@@ -102,14 +102,14 @@ impl Dielectric {
 impl Material for Dielectric {
     fn scatter(
         &self,
-        ray: &Ray,
+        ray_in: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
         *attenuation = Vec3::new(1.0, 1.0, 1.0);
-        let reflected = ray.direction.reflect(record.normal);
-        let d_dot_n = ray.direction.dot(&record.normal);
+        let reflected = ray_in.direction.reflect(record.normal);
+        let d_dot_n = ray_in.direction.dot(&record.normal);
         let outward_normal: Vec3;
         let ni_over_nt: f32;
         let reflect_prob;
@@ -117,13 +117,13 @@ impl Material for Dielectric {
         if d_dot_n > 0.0 {
             outward_normal = -record.normal;
             ni_over_nt = self.ref_idx;
-            cosine = self.ref_idx * d_dot_n / ray.direction.length();
+            cosine = self.ref_idx * d_dot_n / ray_in.direction.length();
         } else {
             outward_normal = record.normal;
             ni_over_nt = 1.0 / self.ref_idx;
-            cosine = -d_dot_n / ray.direction.length();
+            cosine = -d_dot_n / ray_in.direction.length();
         }
-        let refracted = if let Some(r) = ray.direction.refract(outward_normal, ni_over_nt) {
+        let refracted = if let Some(r) = ray_in.direction.refract(outward_normal, ni_over_nt) {
             reflect_prob = self.schlick(cosine);
             r
         } else {
