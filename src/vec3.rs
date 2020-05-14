@@ -75,15 +75,11 @@ impl Vec3 {
         (*self) - 2.0 * self.dot(&normal) * normal
     }
 
-    pub fn refract(&self, n: Vec3, ni_over_nt: f32) -> Option<Vec3> {
-        let uv = self.unit_vector();
-        let dt = uv.dot(&n);
-        let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
-        if discriminant > 0.0 {
-            Some(ni_over_nt * (uv - n * dt) - n * discriminant.sqrt())
-        } else {
-            None
-        }
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
+        let cos_theta = (-uv).dot(&n);
+        let r_out_parallel = etai_over_etat * (uv + cos_theta * n);
+        let r_out_perpendicular = -((1.0 - r_out_parallel.squared_length()).sqrt()) * n;
+        r_out_parallel + r_out_perpendicular
     }
 
     pub fn random() -> Vec3 {
