@@ -38,7 +38,7 @@ impl Materials {
     pub fn new() -> Materials {
         Materials {
             v_metals: vec![
-                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0),
+                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3),
             ],
             v_lambertians: vec![
                 Lambertian {
