@@ -94,8 +94,8 @@ impl Material for Metal {
 }
 
 impl Dielectric {
-    fn schlick(&self, cosine: f32) -> f32 {
-        let r0 = (1.0 - self.ref_idx) / (1.0 + self.ref_idx);
+    fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+        let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
         let r0_squared = r0 * r0;
         r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5)
     }
@@ -119,6 +119,9 @@ impl Material for Dielectric {
         let cos_theta = fmin((-unit_direction).dot(&record.normal) as f64, 1.0) as f32;
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         if etai_over_etat * sin_theta > 1.0 {
+            let reflected = unit_direction.reflect(record.normal);
+            *scattered = Ray::new(record.p, reflected);
+        } else if Self::schlick(cos_theta, etai_over_etat) > random_double() {
             let reflected = unit_direction.reflect(record.normal);
             *scattered = Ray::new(record.p, reflected);
         } else {
