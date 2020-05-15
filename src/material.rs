@@ -1,7 +1,10 @@
+extern crate libm;
+
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
 use super::vec3::*;
+use libm::*;
 
 pub struct Lambertian {
     pub albedo: Vec3,
@@ -35,12 +38,11 @@ impl Materials {
     pub fn new() -> Materials {
         Materials {
             v_metals: vec![
-                Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0),
-                Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0),
+                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0),
             ],
             v_lambertians: vec![
                 Lambertian {
-                    albedo: Vec3::new(0.7, 0.3, 0.3),
+                    albedo: Vec3::new(0.1, 0.2, 0.5),
                 },
                 Lambertian {
                     albedo: Vec3::new(0.8, 0.8, 0.0),
@@ -114,8 +116,15 @@ impl Material for Dielectric {
             self.ref_idx
         };
         let unit_direction = ray_in.direction.unit_vector();
-        let refracted = Vec3::refract(unit_direction, record.normal, etai_over_etat);
-        *scattered = Ray::new(record.p, refracted);
+        let cos_theta = fmin((-unit_direction).dot(&record.normal) as f64, 1.0) as f32;
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        if etai_over_etat * sin_theta > 1.0 {
+            let reflected = unit_direction.reflect(record.normal);
+            *scattered = Ray::new(record.p, reflected);
+        } else {
+            let refracted = Vec3::refract(unit_direction, record.normal, etai_over_etat);
+            *scattered = Ray::new(record.p, refracted);
+        }
         true
     }
 }

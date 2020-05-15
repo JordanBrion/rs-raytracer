@@ -19,7 +19,7 @@ impl<'a> World<'a> {
                     &materials.v_lambertians[1],
                 ),
                 Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, &materials.v_metals[0]),
-                Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &materials.v_metals[1]),
+                Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &materials.v_dielectrics[0]),
             ],
         }
     }
