@@ -15,7 +15,8 @@ pub struct PPM {
     pub width: u32,
     data: Vec<u8>,
 }
- 
+
+#[allow(dead_code)]
 impl PPM {
     pub fn new(height: u32, width: u32) -> PPM {
         let size = 3 * height * width;

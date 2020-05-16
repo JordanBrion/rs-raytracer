@@ -20,8 +20,8 @@ pub struct Dielectric {
 }
 
 pub struct Materials {
-    pub v_metals: std::vec::Vec<Metal>,
     pub v_lambertians: std::vec::Vec<Lambertian>,
+    pub v_metals: std::vec::Vec<Metal>,
     pub v_dielectrics: std::vec::Vec<Dielectric>,
 }
 
@@ -35,11 +35,9 @@ impl Metal {
 }
 
 impl Materials {
+    #[allow(dead_code)]
     pub fn new() -> Materials {
         Materials {
-            v_metals: vec![
-                Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3),
-            ],
             v_lambertians: vec![
                 Lambertian {
                     albedo: Vec3::new(0.1, 0.2, 0.5),
@@ -48,8 +46,37 @@ impl Materials {
                     albedo: Vec3::new(0.8, 0.8, 0.0),
                 },
             ],
+            v_metals: vec![Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)],
             v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
         }
+    }
+
+    pub fn new_random() -> Materials {
+        let mut materials= Materials {
+            v_lambertians: vec![Lambertian {
+                                    albedo: Vec3::new(0.5, 0.5, 0.5),
+                                },
+                                Lambertian {
+                                    albedo: Vec3::new(0.4, 0.2, 0.1),
+                                }],
+            v_metals: vec![Metal::new(
+                Vec3::new(0.7, 0.6, 0.5),
+                0.0,
+            )],
+            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }]
+        };
+        for _ in -11..11 {
+            for _ in -11..11 {
+                materials.v_lambertians.push(Lambertian {
+                    albedo: random_color(),
+                });
+                materials.v_metals.push(Metal::new(
+                    random_color_in_limit(0.5, 1.0),
+                    random_double_in_limit(0.0, 0.5),
+                ));
+            }
+        }
+        materials
     }
 }
 

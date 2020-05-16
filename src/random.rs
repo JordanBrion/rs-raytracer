@@ -15,6 +15,7 @@ pub fn random_in_unit_sphere() -> Vec3 {
     }
 }
 
+#[allow(dead_code)]
 pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
     let in_unit_sphere = random_in_unit_sphere();
     if in_unit_sphere.dot(&normal) > 0.0 {
@@ -47,4 +48,16 @@ pub fn random_unit_vector() -> Vec3 {
     let z = random_double_in_limit(-1.0, 1.0);
     let r = (1.0 - z * z).sqrt();
     Vec3::new(r * a.cos(), r * a.sin(), z)
+}
+
+pub fn random_color() -> Vec3 {
+    random_unit_vector()
+}
+
+pub fn random_color_in_limit(min: f32, max: f32) -> Vec3 {
+    Vec3::new(
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+    )
 }
