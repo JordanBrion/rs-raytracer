@@ -12,15 +12,15 @@ impl<'a> World<'a> {
     pub fn new(materials: &'a Materials, R: f32) -> World<'a> {
         World {
             v_spheres: vec![
-                Sphere::new(Vec3::new(-R, 0.0, -1.0), R, &materials.v_lambertians[0]),
+                Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, &materials.v_lambertians[0]),
                 Sphere::new(
-                    Vec3::new(R, 0.0, -1.0),
-                    R,
+                    Vec3::new(0.0, -100.5, -1.0),
+                    100.0,
                     &materials.v_lambertians[1],
                 ),
-                // Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, &materials.v_metals[0]),
-                // Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &materials.v_dielectrics[0]),
-                // Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45, &materials.v_dielectrics[0]),
+                Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, &materials.v_metals[0]),
+                Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &materials.v_dielectrics[0]),
+                Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45, &materials.v_dielectrics[0]),
             ],
         }
     }
