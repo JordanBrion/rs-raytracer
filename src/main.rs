@@ -62,12 +62,17 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 fn main() {
     let mut ppm = PPM::new(100, 200);
     let r = (PI / 4.0).cos();
+    let look_from = Vec3::new(3.0, 3.0, 2.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let dist_to_focus = (look_from - look_at).length();
     let camera = Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -1.0),
+        look_from,
+        look_at,
         Vec3::new(0.0, 1.0, 0.0),
         20.0,
         ppm.width as f32 / ppm.height as f32,
+        2.0,
+        dist_to_focus,
     );
     let materials = Materials::new();
     let world = World::new(&materials, r);
