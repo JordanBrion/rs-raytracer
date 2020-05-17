@@ -7,6 +7,7 @@ use super::vec3::*;
 
 pub struct World<'a> {
     pub v_spheres: std::vec::Vec<Sphere<'a>>,
+    pub v_moving_spheres: std::vec::Vec<MovingSphere<'a>>,
 }
 
 impl<'a> World<'a> {
@@ -28,6 +29,7 @@ impl<'a> World<'a> {
                     &materials.v_dielectrics[0],
                 ),
             ],
+            v_moving_spheres: Default::default(),
         }
     }
 
@@ -43,6 +45,7 @@ impl<'a> World<'a> {
                 Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, &materials.v_lambertians[1]),
                 Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, &materials.v_metals[0]),
             ],
+            v_moving_spheres: Default::default(),
         };
         let range_x: std::ops::Range<usize> = 0..22;
         let range_y: std::ops::Range<usize> = 0..22;
@@ -56,8 +59,11 @@ impl<'a> World<'a> {
                     (b as i64 - bias) as f32 + 0.9 * random_double(),
                 );
                 if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                    world.v_spheres.push(Sphere::new(
+                    world.v_moving_spheres.push(MovingSphere::new(
                         center,
+                        center + Vec3::new(0.0, random_double_in_limit(0.0, 0.5), 0.0),
+                        0.0,
+                        1.0,
                         0.2,
                         if choose_mat < 0.8 {
                             &materials.v_lambertians[a * range_y.len() + b]
@@ -79,6 +85,12 @@ impl<'a> Hittable for World<'a> {
         let mut closest_record = None;
         let mut closest_so_far = t_max;
         for sphere in &self.v_spheres {
+            if let Some(record) = sphere.hit(ray, t_min, closest_so_far) {
+                closest_so_far = record.t;
+                closest_record = Some(record);
+            }
+        }
+        for sphere in &self.v_moving_spheres {
             if let Some(record) = sphere.hit(ray, t_min, closest_so_far) {
                 closest_so_far = record.t;
                 closest_record = Some(record);

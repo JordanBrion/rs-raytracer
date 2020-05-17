@@ -2,14 +2,16 @@ use super::vec3::*;
 
 pub struct Ray {
     pub origin: Vec3,
-    pub direction: Vec3
+    pub direction: Vec3,
+    pub time: f32,
 }
 
 impl Ray {
-    pub fn new(origin: Vec3, direction: Vec3) -> Ray {
+    pub fn new(origin: Vec3, direction: Vec3, time: f32) -> Ray {
         Ray {
             origin: origin,
-            direction: direction
+            direction: direction,
+            time: time,
         }
     }
 
@@ -20,6 +22,6 @@ impl Ray {
 
 impl Default for Ray {
     fn default() -> Self {
-        Ray::new(Default::default(), Default::default())
+        Ray::new(Default::default(), Default::default(), Default::default())
     }
 }

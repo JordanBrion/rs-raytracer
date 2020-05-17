@@ -70,8 +70,10 @@ fn main() {
         Vec3::new(0.0, 1.0, 0.0),
         20.0,
         ppm.width as f32 / ppm.height as f32,
-        0.1,
+        0.0,
         dist_to_focus,
+        0.0,
+        1.0,
     );
     let materials = Materials::new_random();
     let world = World::new_random(&materials);
