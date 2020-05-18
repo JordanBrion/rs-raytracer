@@ -11,6 +11,7 @@ mod ray;
 mod sphere;
 mod vec3;
 mod world;
+mod aabb;
 
 use camera::*;
 use constants::*;
