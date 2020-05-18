@@ -1,3 +1,4 @@
+use super::aabb::*;
 use super::hittable::*;
 use super::material::*;
 use super::random::*;
@@ -97,5 +98,39 @@ impl<'a> Hittable for World<'a> {
             }
         }
         return closest_record;
+    }
+
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        if self.v_spheres.is_empty() && self.v_moving_spheres.is_empty() {
+            None
+        } else {
+            let mut output_box = Some(Default::default());
+            let mut first_box = true;
+            for sphere in &self.v_spheres {
+                if let Some(temp_box) = (*sphere).bounding_box(t0, t1) {
+                    output_box = if first_box {
+                        Some(temp_box)
+                    } else {
+                        Some(AABB::surrounding_box(temp_box, output_box.unwrap()))
+                    };
+                    first_box = false;
+                } else {
+                    return None;
+                }
+            }
+            for sphere in &self.v_moving_spheres {
+                if let Some(temp_box) = (*sphere).bounding_box(t0, t1) {
+                    output_box = if first_box {
+                        Some(temp_box)
+                    } else {
+                        Some(AABB::surrounding_box(temp_box, output_box.unwrap()))
+                    };
+                    first_box = false;
+                } else {
+                    return None;
+                }
+            }
+            output_box
+        }
     }
 }

@@ -3,7 +3,7 @@ use super::ray::*;
 use super::vec3::*;
 use libm::*;
 
-struct AABB {
+pub struct AABB {
     pub min: Vec3,
     pub max: Vec3,
 }
@@ -28,5 +28,25 @@ impl AABB {
             }
         }
         true
+    }
+
+    pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {
+        let small = Vec3::new(
+            fmin(box0.min.x as f64, box1.min.x as f64) as f32,
+            fmin(box0.min.y as f64, box1.min.y as f64) as f32,
+            fmin(box0.min.z as f64, box1.min.z as f64) as f32,
+        );
+        let big = Vec3::new(
+            fmax(box0.max.x as f64, box1.max.x as f64) as f32,
+            fmax(box0.max.y as f64, box1.max.y as f64) as f32,
+            fmax(box0.max.z as f64, box1.max.z as f64) as f32,
+        );
+        AABB::new(small, big)
+    }
+}
+
+impl Default for AABB {
+    fn default() -> Self {
+        AABB::new(Default::default(), Default::default())
     }
 }

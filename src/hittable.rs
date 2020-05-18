@@ -2,6 +2,7 @@ use super::material::*;
 use super::ray::*;
 use super::sphere::*;
 use super::vec3::*;
+use super::aabb::*;
 
 pub struct HitRecord<'a> {
     pub t: f32,
@@ -49,4 +50,5 @@ impl<'a> HitRecord<'a> {
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB>;
 }
