@@ -15,19 +15,17 @@ impl AABB {
 
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
         for a in 0..3 {
-            let t0 = fmin(
-                ((self.min[a] - ray.origin[a]) / ray.direction[a]) as f64,
-                ((self.max[a] - ray.origin[a]) / ray.direction[a]) as f64,
-            );
-            let t1 = fmax(
-                ((self.min[a] - ray.origin[a]) / ray.direction[a]) as f64,
-                ((self.max[a] - ray.origin[a]) / ray.direction[a]) as f64,
-            );
-            let t_min = fmax(t0 as f64, t_min as f64);
-            let t_max = fmin(t1 as f64, t_max as f64);
-            if t_max <= t_min {
+            let inv_d = 1.0 / ray.direction[a];
+            let mut t0 = (self.min[a] - ray.origin[a]) * inv_d;
+            let mut t1 = (self.max[a] - ray.origin[a]) * inv_d;
+            if inv_d < 0.0 {
+                std::mem::swap(&mut t0, &mut t1);
+            }
+            let tmin = if t0 > t_min { t0 } else { t_min };
+            let tmax = if t1 < t_max { t1 } else { t_max };
+            if tmax <= tmin {
                 return false;
-            } 
+            }
         }
         true
     }
