@@ -34,6 +34,14 @@ pub fn random_double_in_limit(min: f32, max: f32) -> f32 {
     min + (max - min) * random_double()
 }
 
+pub fn random_int() -> isize {
+    random_double() as isize
+}
+
+pub fn random_int_in_limit(min: isize, max: isize) -> isize {
+    min + (max - min) * random_int()
+}
+
 pub fn random_in_unit_disk() -> Vec3 {
     loop {
         let p = 2.0 * Vec3::new(random_double(), random_double(), 0.0) - Vec3::new(1.0, 1.0, 0.0);

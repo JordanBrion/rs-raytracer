@@ -4,23 +4,25 @@ use super::material::*;
 use super::ray::*;
 use super::vec3::*;
 
-pub struct Sphere<'a> {
+use std::rc::Rc;
+
+pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: &'a dyn Material,
+    pub material: Rc<dyn Material>,
 }
 
-impl<'a> Sphere<'a> {
-    pub fn new(center: Vec3, radius: f32, material: &'a dyn Material) -> Sphere<'a> {
+impl Sphere {
+    pub fn new(center: Vec3, radius: f32, material: Rc<dyn Material>) -> Sphere {
         Sphere {
-            center: center,
-            radius: radius,
-            material: material,
+            center,
+            radius,
+            material,
         }
     }
 }
 
-impl<'a> Hittable for Sphere<'a> {
+impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.squared_length();
@@ -50,17 +52,17 @@ impl<'a> Hittable for Sphere<'a> {
     }
 }
 
-pub struct MovingSphere<'a> {
+pub struct MovingSphere {
     pub center0: Vec3,
     pub center1: Vec3,
     pub time0: f32,
     pub time1: f32,
     pub radius: f32,
-    pub material: &'a dyn Material,
+    pub material: Rc<dyn Material>,
 }
 
-impl<'a> MovingSphere<'a> {
-    pub fn new(c0: Vec3, c1: Vec3, t0: f32, t1: f32, r: f32, m: &'a dyn Material) -> MovingSphere {
+impl MovingSphere {
+    pub fn new(c0: Vec3, c1: Vec3, t0: f32, t1: f32, r: f32, m: Rc<dyn Material>) -> MovingSphere {
         MovingSphere {
             center0: c0,
             center1: c1,
@@ -77,7 +79,7 @@ impl<'a> MovingSphere<'a> {
     }
 }
 
-impl<'a> Hittable for MovingSphere<'a> {
+impl Hittable for MovingSphere {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = ray.origin - self.center(ray.time);
         let a = ray.direction.squared_length();

@@ -12,6 +12,7 @@ mod sphere;
 mod vec3;
 mod world;
 mod aabb;
+mod bvh;
 
 use camera::*;
 use constants::*;
@@ -43,16 +44,16 @@ fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
         }
     } else {
         let unit_direction = ray.direction.unit_vector();
-        let t = 0.5 * (unit_direction.y + 1.0);
+        let t = 0.5 * (unit_direction.y() + 1.0);
         (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
     }
 }
 
 fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
     let scale = 1.0 / samples_per_pixel as f32;
-    let r_scaled = (scale * color.x).sqrt();
-    let g_scaled = (scale * color.y).sqrt();
-    let b_scaled = (scale * color.z).sqrt();
+    let r_scaled = (scale * color.x()).sqrt();
+    let g_scaled = (scale * color.y()).sqrt();
+    let b_scaled = (scale * color.z()).sqrt();
     RGB {
         r: (256.0 * num::clamp(r_scaled, 0.0, 0.999)) as u8,
         g: (256.0 * num::clamp(g_scaled, 0.0, 0.999)) as u8,

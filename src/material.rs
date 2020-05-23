@@ -1,9 +1,12 @@
 extern crate libm;
 
+use std::rc::Rc;
+
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
 use super::vec3::*;
+
 use libm::*;
 
 pub struct Lambertian {
@@ -20,9 +23,9 @@ pub struct Dielectric {
 }
 
 pub struct Materials {
-    pub v_lambertians: std::vec::Vec<Lambertian>,
-    pub v_metals: std::vec::Vec<Metal>,
-    pub v_dielectrics: std::vec::Vec<Dielectric>,
+    pub v_lambertians: std::vec::Vec<Rc<Lambertian>>,
+    pub v_metals: std::vec::Vec<Rc<Metal>>,
+    pub v_dielectrics: std::vec::Vec<Rc<Dielectric>>,
 }
 
 impl Metal {
@@ -39,40 +42,40 @@ impl Materials {
     pub fn new() -> Materials {
         Materials {
             v_lambertians: vec![
-                Lambertian {
+                Rc::new(Lambertian {
                     albedo: Vec3::new(0.1, 0.2, 0.5),
-                },
-                Lambertian {
+                }),
+                Rc::new(Lambertian {
                     albedo: Vec3::new(0.8, 0.8, 0.0),
-                },
+                }),
             ],
-            v_metals: vec![Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_metals: vec![Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3))],
+            v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
         }
     }
 
     pub fn new_random() -> Materials {
         let mut materials = Materials {
             v_lambertians: vec![
-                Lambertian {
+                Rc::new(Lambertian {
                     albedo: Vec3::new(0.5, 0.5, 0.5),
-                },
-                Lambertian {
+                }),
+                Rc::new(Lambertian {
                     albedo: Vec3::new(0.4, 0.2, 0.1),
-                },
+                }),
             ],
-            v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_metals: vec![Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0))],
+            v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
         };
         for _ in -11..11 {
             for _ in -11..11 {
-                materials.v_lambertians.push(Lambertian {
+                materials.v_lambertians.push(Rc::new(Lambertian {
                     albedo: random_color() * random_color(),
-                });
-                materials.v_metals.push(Metal::new(
+                }));
+                materials.v_metals.push(Rc::new(Metal::new(
                     random_color_in_limit(0.5, 1.0),
                     random_double_in_limit(0.0, 0.5),
-                ));
+                )));
             }
         }
         materials
@@ -113,7 +116,11 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let reflected = ray_in.direction.unit_vector().reflect(record.normal);
-        *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere(), ray_in.time);
+        *scattered = Ray::new(
+            record.p,
+            reflected + self.fuzz * random_in_unit_sphere(),
+            ray_in.time,
+        );
         *attenuation = self.albedo;
         scattered.direction.dot(&record.normal) > 0.0
     }

@@ -1,19 +1,21 @@
+use std::rc::Rc;
+
+use super::aabb::*;
 use super::material::*;
 use super::ray::*;
 use super::sphere::*;
 use super::vec3::*;
-use super::aabb::*;
 
-pub struct HitRecord<'a> {
+pub struct HitRecord {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
     pub front_face: bool,
-    pub material: &'a dyn Material,
+    pub material: Rc<dyn Material>,
 }
 
-impl<'a> HitRecord<'a> {
-    pub fn new_sphere(t: f32, sphere: &'a Sphere, ray: &Ray) -> HitRecord<'a> {
+impl HitRecord {
+    pub fn new_sphere(t: f32, sphere: &Sphere, ray: &Ray) -> HitRecord {
         let hit_point = ray.point_at_parameter(t);
         let outward_normal = (hit_point - sphere.center) / sphere.radius;
         let front_face = ray.direction.dot(&outward_normal) < 0.0f32;
@@ -26,11 +28,11 @@ impl<'a> HitRecord<'a> {
             p: hit_point,
             normal: final_normal,
             front_face: front_face,
-            material: sphere.material,
+            material: sphere.material.clone(),
         }
     }
 
-    pub fn new_moving_sphere(t: f32, sphere: &'a MovingSphere, ray: &Ray) -> HitRecord<'a> {
+    pub fn new_moving_sphere(t: f32, sphere: &MovingSphere, ray: &Ray) -> HitRecord {
         let hit_point = ray.point_at_parameter(t);
         let outward_normal = (hit_point - sphere.center(ray.time)) / sphere.radius;
         let front_face = ray.direction.dot(&outward_normal) < 0.0f32;
@@ -43,7 +45,7 @@ impl<'a> HitRecord<'a> {
             p: hit_point,
             normal: final_normal,
             front_face: front_face,
-            material: sphere.material,
+            material: sphere.material.clone(),
         }
     }
 }

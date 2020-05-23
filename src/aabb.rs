@@ -3,6 +3,7 @@ use super::ray::*;
 use super::vec3::*;
 use libm::*;
 
+#[derive(Copy, Clone, PartialEq)]
 pub struct AABB {
     pub min: Vec3,
     pub max: Vec3,
@@ -13,7 +14,7 @@ impl AABB {
         AABB { min: a, max: b }
     }
 
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
+   pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
         for a in 0..3 {
             let inv_d = 1.0 / ray.direction[a];
             let mut t0 = (self.min[a] - ray.origin[a]) * inv_d;
@@ -32,14 +33,14 @@ impl AABB {
 
     pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {
         let small = Vec3::new(
-            fmin(box0.min.x as f64, box1.min.x as f64) as f32,
-            fmin(box0.min.y as f64, box1.min.y as f64) as f32,
-            fmin(box0.min.z as f64, box1.min.z as f64) as f32,
+            fmin(box0.min.x() as f64, box1.min.x() as f64) as f32,
+            fmin(box0.min.y() as f64, box1.min.y() as f64) as f32,
+            fmin(box0.min.z() as f64, box1.min.z() as f64) as f32,
         );
         let big = Vec3::new(
-            fmax(box0.max.x as f64, box1.max.x as f64) as f32,
-            fmax(box0.max.y as f64, box1.max.y as f64) as f32,
-            fmax(box0.max.z as f64, box1.max.z as f64) as f32,
+            fmax(box0.max.x() as f64, box1.max.x() as f64) as f32,
+            fmax(box0.max.y() as f64, box1.max.y() as f64) as f32,
+            fmax(box0.max.z() as f64, box1.max.z() as f64) as f32,
         );
         AABB::new(small, big)
     }
