@@ -30,6 +30,14 @@ pub fn random_double() -> f32 {
     rng.gen::<f32>()
 }
 
+pub fn random_v_double(n: usize) -> std::vec::Vec<f32> {
+    let mut v = vec![0.0; n];
+    for i in 0..n {
+        v[i] = random_double();
+    }
+    v
+}
+
 pub fn random_double_in_limit(min: f32, max: f32) -> f32 {
     min + (max - min) * random_double()
 }

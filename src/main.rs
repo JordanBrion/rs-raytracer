@@ -7,6 +7,7 @@ mod camera;
 mod constants;
 mod hittable;
 mod material;
+mod noise;
 mod ppm;
 mod random;
 mod ray;
@@ -78,7 +79,7 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_two_checkers();
+    let materials = Materials::new_two_perlins();
     let world = World::new_two_spheres(&materials);
     let samples = 100;
     let max_depth = 50;

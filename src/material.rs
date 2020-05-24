@@ -93,6 +93,7 @@ impl Materials {
         materials
     }
 
+    #[allow(dead_code)]
     pub fn new_two_checkers() -> Materials {
         Materials {
             v_lambertians: vec![Rc::new(Lambertian {
@@ -104,6 +105,16 @@ impl Materials {
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
         }
+    }
+
+    pub fn new_two_perlins() -> Materials {
+        Materials {
+            v_lambertians: vec![Rc::new(Lambertian {
+                albedo: Rc::new(NoiseTexture::new()),
+            })],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
+        }   
     }
 }
 

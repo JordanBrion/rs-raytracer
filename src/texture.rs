@@ -1,4 +1,5 @@
 use super::constants::*;
+use super::noise::*;
 use super::random::*;
 use super::vec3::*;
 
@@ -45,6 +46,24 @@ impl Texture for CheckerTexture {
         } else {
             self.even.value(u, v, p)
         }
+    }
+}
+
+pub struct NoiseTexture {
+    perlin: Perlin,
+}
+
+impl NoiseTexture {
+    pub fn new() -> NoiseTexture {
+        NoiseTexture {
+            perlin: Perlin::new(),
+        }
+    }
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, u: f32, v: f32, p: Vec3) -> Vec3 {
+        Vec3::new(1.0, 1.0, 1.0) * self.perlin.noise(p)
     }
 }
 

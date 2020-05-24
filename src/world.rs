@@ -107,13 +107,13 @@ impl World {
         World {
             v_objects: vec![
                 Rc::new(Sphere::new(
-                    Vec3::new(0.0, -10.0, 0.0),
-                    10.0,
+                    Vec3::new(0.0, -1000.0, 0.0),
+                    1000.0,
                     materials.v_lambertians[0].clone(),
                 )),
                 Rc::new(Sphere::new(
-                    Vec3::new(0.0, 10.0, 0.0),
-                    10.0,
+                    Vec3::new(0.0, 2.0, 0.0),
+                    2.0,
                     materials.v_lambertians[0].clone(),
                 )),
             ],
