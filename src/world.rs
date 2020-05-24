@@ -102,6 +102,23 @@ impl World {
         }
         world
     }
+
+    pub fn new_two_spheres(materials: &Materials) -> World {
+        World {
+            v_objects: vec![
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, -10.0, 0.0),
+                    10.0,
+                    materials.v_lambertians[0].clone(),
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, 10.0, 0.0),
+                    10.0,
+                    materials.v_lambertians[0].clone(),
+                )),
+            ],
+        }
+    }
 }
 
 impl Hittable for World {

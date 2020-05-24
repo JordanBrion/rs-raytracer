@@ -1,6 +1,8 @@
 extern crate num;
 
+mod aabb;
 mod angles;
+mod bvh;
 mod camera;
 mod constants;
 mod hittable;
@@ -9,11 +11,9 @@ mod ppm;
 mod random;
 mod ray;
 mod sphere;
+mod texture;
 mod vec3;
 mod world;
-mod aabb;
-mod bvh;
-mod texture;
 
 use camera::*;
 use constants::*;
@@ -78,8 +78,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_random();
-    let world = World::new_random(&materials);
+    let materials = Materials::new_two_checkers();
+    let world = World::new_two_spheres(&materials);
     let samples = 100;
     let max_depth = 50;
 

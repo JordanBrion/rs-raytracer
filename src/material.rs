@@ -65,6 +65,7 @@ impl Materials {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_random() -> Materials {
         let mut materials = Materials {
             v_lambertians: vec![
@@ -90,6 +91,19 @@ impl Materials {
             }
         }
         materials
+    }
+
+    pub fn new_two_checkers() -> Materials {
+        Materials {
+            v_lambertians: vec![Rc::new(Lambertian {
+                albedo: Rc::new(CheckerTexture {
+                    odd: Rc::new(SolidColor::new(0.2, 0.3, 0.1)),
+                    even: Rc::new(SolidColor::new(0.9, 0.9, 0.9)),
+                }),
+            })],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
+        }
     }
 }
 
