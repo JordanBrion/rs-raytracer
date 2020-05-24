@@ -52,7 +52,7 @@ impl World {
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, -1000.0, 0.0),
                     1000.0,
-                    materials.v_lambertians[0].clone(),
+                    materials.v_lambertians[2].clone(),
                 )),
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, 1.0, 0.0),

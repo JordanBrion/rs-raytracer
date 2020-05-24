@@ -5,12 +5,13 @@ use std::rc::Rc;
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
+use super::texture::*;
 use super::vec3::*;
 
 use libm::*;
 
 pub struct Lambertian {
-    pub albedo: Vec3,
+    pub albedo: Rc<dyn Texture>,
 }
 
 pub struct Metal {
@@ -43,10 +44,20 @@ impl Materials {
         Materials {
             v_lambertians: vec![
                 Rc::new(Lambertian {
-                    albedo: Vec3::new(0.1, 0.2, 0.5),
+                    albedo: Rc::new(SolidColor::new(0.1, 0.2, 0.5)),
                 }),
                 Rc::new(Lambertian {
-                    albedo: Vec3::new(0.8, 0.8, 0.0),
+                    albedo: Rc::new(SolidColor::new(0.8, 0.8, 0.0)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(CheckerTexture {
+                        even: Rc::new(SolidColor {
+                            color_value: Vec3::new(0.2, 0.3, 0.1),
+                        }),
+                        odd: Rc::new(SolidColor {
+                            color_value: Vec3::new(0.9, 0.9, 0.9),
+                        }),
+                    }),
                 }),
             ],
             v_metals: vec![Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3))],
@@ -58,10 +69,10 @@ impl Materials {
         let mut materials = Materials {
             v_lambertians: vec![
                 Rc::new(Lambertian {
-                    albedo: Vec3::new(0.5, 0.5, 0.5),
+                    albedo: Rc::new(SolidColor::new(0.5, 0.5, 0.5)),
                 }),
                 Rc::new(Lambertian {
-                    albedo: Vec3::new(0.4, 0.2, 0.1),
+                    albedo: Rc::new(SolidColor::new(0.4, 0.2, 0.1)),
                 }),
             ],
             v_metals: vec![Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0))],
@@ -70,7 +81,7 @@ impl Materials {
         for _ in -11..11 {
             for _ in -11..11 {
                 materials.v_lambertians.push(Rc::new(Lambertian {
-                    albedo: random_color() * random_color(),
+                    albedo: Rc::new(SolidColor::new_random()),
                 }));
                 materials.v_metals.push(Rc::new(Metal::new(
                     random_color_in_limit(0.5, 1.0),
@@ -102,7 +113,7 @@ impl Material for Lambertian {
     ) -> bool {
         let scatter_direction = record.normal + random_in_unit_sphere();
         *scattered = Ray::new(record.p, scatter_direction, ray_in.time);
-        *attenuation = self.albedo;
+        *attenuation = self.albedo.value(record.u, record.v, record.p);
         true
     }
 }

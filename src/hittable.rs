@@ -4,12 +4,15 @@ use super::aabb::*;
 use super::material::*;
 use super::ray::*;
 use super::sphere::*;
+use super::texture::*;
 use super::vec3::*;
 
 pub struct HitRecord {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
+    pub u: f32,
+    pub v: f32,
     pub front_face: bool,
     pub material: Rc<dyn Material>,
 }
@@ -23,10 +26,13 @@ impl HitRecord {
             true => outward_normal,
             false => -outward_normal,
         };
+        let (u, v) = get_sphere_uv(hit_point);
         HitRecord {
             t: t,
             p: hit_point,
             normal: final_normal,
+            u: u,
+            v: v,
             front_face: front_face,
             material: sphere.material.clone(),
         }
@@ -40,10 +46,13 @@ impl HitRecord {
             true => outward_normal,
             false => -outward_normal,
         };
+        let (u, v) = get_sphere_uv(hit_point);
         HitRecord {
             t: t,
             p: hit_point,
             normal: final_normal,
+            u: u,
+            v: v,
             front_face: front_face,
             material: sphere.material.clone(),
         }

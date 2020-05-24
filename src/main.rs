@@ -13,6 +13,7 @@ mod vec3;
 mod world;
 mod aabb;
 mod bvh;
+mod texture;
 
 use camera::*;
 use constants::*;
