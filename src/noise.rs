@@ -1,3 +1,4 @@
+use super::interpolation::*;
 use super::random::*;
 use super::vec3::*;
 
@@ -21,14 +22,26 @@ impl Perlin {
     }
 
     pub fn noise(&self, p: Vec3) -> f32 {
+        let depth = 2;
+        let i = p.x().floor() as usize & 255;
+        let j = p.y().floor() as usize & 255;
+        let k = p.z().floor() as usize & 255;
         let u = p.x() - p.x().floor();
         let v = p.y() - p.y().floor();
         let w = p.z() - p.z().floor();
-        let i: usize = (4.0 * p.x()) as usize & 255;
-        let j: usize = (4.0 * p.y()) as usize & 255;
-        let k: usize = (4.0 * p.z()) as usize & 255;
-        let index = (self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize;
-        self.ranfloat[index]
+        let mut c = [0.0; 8];
+
+        for di in 0..depth {
+            for dj in 0..depth {
+                for dk in 0..depth {
+                    let index = (self.perm_x[(i + di) & 255]
+                        ^ self.perm_y[(j + dj) & 255]
+                        ^ self.perm_z[(k + dk) & 255]) as usize;
+                    c[di * depth + dj * depth + dk] = self.ranfloat[index];
+                }
+            }
+        }
+        trilinear_interp(&c, depth, depth, depth, u, v, w)
     }
 
     fn perlin_generate_perm() -> std::vec::Vec<i32> {
@@ -41,7 +54,7 @@ impl Perlin {
     }
 
     fn permute(p: &mut [i32], n: usize) {
-        for i in n-1..0 {
+        for i in n - 1..0 {
             let target = random_int_in_limit(0, i as isize) as usize;
             p[i] ^= p[target];
             p[i] ^= p[target];

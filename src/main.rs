@@ -15,6 +15,7 @@ mod sphere;
 mod texture;
 mod vec3;
 mod world;
+mod interpolation;
 
 use camera::*;
 use constants::*;
