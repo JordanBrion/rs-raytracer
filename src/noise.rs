@@ -26,9 +26,13 @@ impl Perlin {
         let i = p.x().floor() as usize & 255;
         let j = p.y().floor() as usize & 255;
         let k = p.z().floor() as usize & 255;
-        let u = p.x() - p.x().floor();
-        let v = p.y() - p.y().floor();
-        let w = p.z() - p.z().floor();
+        let mut u = p.x() - p.x().floor();
+        let mut v = p.y() - p.y().floor();
+        let mut w = p.z() - p.z().floor();
+        u = u * u * (3.0 - 2.0 * u);
+        v = v * v * (3.0 - 2.0 * v);
+        w = w * w * (3.0 - 2.0 * w);
+
         let mut c = [0.0; 8];
 
         for di in 0..depth {
