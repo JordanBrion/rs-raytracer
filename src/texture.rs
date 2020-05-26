@@ -65,7 +65,9 @@ impl NoiseTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
-        Vec3::new(1.0, 1.0, 1.0) * self.perlin.turb(self.scale * p, 7)
+        Vec3::new(1.0, 1.0, 1.0)
+            * 0.5
+            * (1.0 + (self.scale * p.z() + 10.0 * self.perlin.turb(p, 7)).sin())
     }
 }
 
