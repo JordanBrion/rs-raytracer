@@ -41,11 +41,11 @@ fn make_boundaries(
 }
 
 impl BVHNode {
-    pub fn new(world: &mut World, time0: f32, time1: f32) -> BVHNode {
+    pub fn new(world: &mut World, time0: f64, time1: f64) -> BVHNode {
         BVHNode::new_a(&mut world.v_objects[0..], time0, time1)
     }
 
-    fn new_a(v_objects: &mut [Rc<dyn Hittable>], time0: f32, time1: f32) -> BVHNode {
+    fn new_a(v_objects: &mut [Rc<dyn Hittable>], time0: f64, time1: f64) -> BVHNode {
         let axis = random_int_in_limit(0, 2) as usize;
         let comparator = |a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>| {
             let box0 = a.bounding_box(0.0, 0.0);
@@ -79,7 +79,7 @@ impl BVHNode {
 }
 
 impl Hittable for BVHNode {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         if !self.aabb.hit(ray, t_min, t_max) {
             None
         } else if let Some(record) = self.left.hit(ray, t_min, t_max) {
@@ -91,7 +91,7 @@ impl Hittable for BVHNode {
         }
     }
 
-    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
         Some(self.aabb.clone())
     }
 }

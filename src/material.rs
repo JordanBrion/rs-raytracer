@@ -16,11 +16,11 @@ pub struct Lambertian {
 
 pub struct Metal {
     pub albedo: Vec3,
-    fuzz: f32,
+    fuzz: f64,
 }
 
 pub struct Dielectric {
-    ref_idx: f32,
+    ref_idx: f64,
 }
 
 pub struct Materials {
@@ -30,7 +30,7 @@ pub struct Materials {
 }
 
 impl Metal {
-    fn new(albedo: Vec3, fuzz: f32) -> Metal {
+    fn new(albedo: Vec3, fuzz: f64) -> Metal {
         Metal {
             albedo: albedo,
             fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
@@ -163,7 +163,7 @@ impl Material for Metal {
 }
 
 impl Dielectric {
-    fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+    fn schlick(cosine: f64, ref_idx: f64) -> f64 {
         let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
         let r0_squared = r0 * r0;
         r0_squared + (1.0 - r0_squared) * (1.0 - cosine).powi(5)
@@ -185,7 +185,7 @@ impl Material for Dielectric {
             self.ref_idx
         };
         let unit_direction = ray_in.direction.unit_vector();
-        let cos_theta = fmin((-unit_direction).dot(&record.normal) as f64, 1.0) as f32;
+        let cos_theta = fmin((-unit_direction).dot(&record.normal), 1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         if etai_over_etat * sin_theta > 1.0 {
             let reflected = unit_direction.reflect(record.normal);

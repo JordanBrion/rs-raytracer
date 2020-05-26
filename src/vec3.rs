@@ -14,43 +14,43 @@ use super::random::*;
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Vec3 {
-    pub e: [f32; 3],
+    pub e: [f64; 3],
 }
 
 impl Vec3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { e: [x, y, z] }
     }
 
-    pub fn x(&self) -> f32 {
+    pub fn x(&self) -> f64 {
         self.e[0]
     }
 
-    pub fn y(&self) -> f32 {
+    pub fn y(&self) -> f64 {
         self.e[1]
     }
 
-    pub fn z(&self) -> f32 {
+    pub fn z(&self) -> f64 {
         self.e[2]
     }
 
-    pub fn r(&self) -> f32 {
+    pub fn r(&self) -> f64 {
         self.e[0]
     }
 
-    pub fn g(&self) -> f32 {
+    pub fn g(&self) -> f64 {
         self.e[1]
     }
 
-    pub fn b(&self) -> f32 {
+    pub fn b(&self) -> f64 {
         self.e[2]
     }
 
-    pub fn length(&self) -> f32 {
+    pub fn length(&self) -> f64 {
         self.squared_length().sqrt()
     }
 
-    pub fn squared_length(&self) -> f32 {
+    pub fn squared_length(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
     }
 
@@ -65,7 +65,7 @@ impl Vec3 {
         (*self).clone() / self.length()
     }
 
-    pub fn dot(&self, other: &Vec3) -> f32 {
+    pub fn dot(&self, other: &Vec3) -> f64 {
         self.e[0] * other.e[0] + self.e[1] * other.e[1] + self.e[2] * other.e[2]
     }
 
@@ -85,7 +85,7 @@ impl Vec3 {
         (*self) - 2.0 * self.dot(&normal) * normal
     }
 
-    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
+    pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
         let cos_theta = (-uv).dot(&n);
         let r_out_parallel = etai_over_etat * (uv + cos_theta * n);
         let r_out_perpendicular = -((1.0 - r_out_parallel.squared_length()).sqrt()) * n;
@@ -98,7 +98,7 @@ impl Vec3 {
         }
     }
 
-    pub fn random_in_limit(min: f32, max: f32) -> Vec3 {
+    pub fn random_in_limit(min: f64, max: f64) -> Vec3 {
         Vec3 {
             e: [
                 random_double_in_limit(min, max),
@@ -145,16 +145,16 @@ impl Sub for Vec3 {
     }
 }
 
-impl Mul<Vec3> for f32 {
+impl Mul<Vec3> for f64 {
     type Output = Vec3;
     fn mul(self, rhs: Self::Output) -> Self::Output {
         Self::Output::new(self * rhs.e[0], self * rhs.e[1], self * rhs.e[2])
     }
 }
 
-impl Mul<f32> for Vec3 {
+impl Mul<f64> for Vec3 {
     type Output = Vec3;
-    fn mul(self, rhs: f32) -> Self {
+    fn mul(self, rhs: f64) -> Self {
         Self::new(self.e[0] * rhs, self.e[1] * rhs, self.e[2] * rhs)
     }
 }
@@ -181,15 +181,15 @@ impl Div<Vec3> for Vec3 {
     }
 }
 
-impl Div<f32> for Vec3 {
+impl Div<f64> for Vec3 {
     type Output = Vec3;
-    fn div(self, rhs: f32) -> Self {
+    fn div(self, rhs: f64) -> Self {
         Self::new(self.e[0] / rhs, self.e[1] / rhs, self.e[2] / rhs)
     }
 }
 
 impl Index<usize> for Vec3 {
-    type Output = f32;
+    type Output = f64;
 
     fn index(&self, index: usize) -> &Self::Output {
         match index {
@@ -236,8 +236,8 @@ impl MulAssign<Vec3> for Vec3 {
     }
 }
 
-impl MulAssign<f32> for Vec3 {
-    fn mul_assign(&mut self, other: f32) {
+impl MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, other: f64) {
         self.e[0] *= other;
         self.e[1] *= other;
         self.e[2] *= other;
@@ -252,8 +252,8 @@ impl DivAssign<Vec3> for Vec3 {
     }
 }
 
-impl DivAssign<f32> for Vec3 {
-    fn div_assign(&mut self, other: f32) {
+impl DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, other: f64) {
         self.e[0] /= other;
         self.e[1] /= other;
         self.e[2] /= other;

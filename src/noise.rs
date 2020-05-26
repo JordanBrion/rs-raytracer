@@ -5,7 +5,7 @@ use super::vec3::*;
 const POINT_COUNT: usize = 256;
 
 pub struct Perlin {
-    ranfloat: std::vec::Vec<f32>,
+    ranfloat: std::vec::Vec<f64>,
     perm_x: std::vec::Vec<i32>,
     perm_y: std::vec::Vec<i32>,
     perm_z: std::vec::Vec<i32>,
@@ -21,7 +21,7 @@ impl Perlin {
         }
     }
 
-    pub fn noise(&self, p: Vec3) -> f32 {
+    pub fn noise(&self, p: Vec3) -> f64 {
         let depth = 2;
         let i = p.x().floor() as usize & 255;
         let j = p.y().floor() as usize & 255;

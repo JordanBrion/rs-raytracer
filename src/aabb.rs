@@ -14,7 +14,7 @@ impl AABB {
         AABB { min: a, max: b }
     }
 
-   pub fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> bool {
+   pub fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> bool {
         for a in 0..3 {
             let inv_d = 1.0 / ray.direction[a];
             let mut t0 = (self.min[a] - ray.origin[a]) * inv_d;
@@ -33,14 +33,14 @@ impl AABB {
 
     pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {
         let small = Vec3::new(
-            fmin(box0.min.x() as f64, box1.min.x() as f64) as f32,
-            fmin(box0.min.y() as f64, box1.min.y() as f64) as f32,
-            fmin(box0.min.z() as f64, box1.min.z() as f64) as f32,
+            fmin(box0.min.x(), box1.min.x()),
+            fmin(box0.min.y(), box1.min.y()),
+            fmin(box0.min.z(), box1.min.z()),
         );
         let big = Vec3::new(
-            fmax(box0.max.x() as f64, box1.max.x() as f64) as f32,
-            fmax(box0.max.y() as f64, box1.max.y() as f64) as f32,
-            fmax(box0.max.z() as f64, box1.max.z() as f64) as f32,
+            fmax(box0.max.x(), box1.max.x()),
+            fmax(box0.max.y(), box1.max.y()),
+            fmax(box0.max.z(), box1.max.z()),
         );
         AABB::new(small, big)
     }

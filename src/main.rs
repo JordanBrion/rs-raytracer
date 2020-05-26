@@ -27,7 +27,7 @@ use ray::*;
 use vec3::*;
 use world::*;
 
-fn color(x: f32, y: f32, z: f32) -> Vec3 {
+fn color(x: f64, y: f64, z: f64) -> Vec3 {
     Vec3::new(x, y, z)
 }
 
@@ -53,7 +53,7 @@ fn ray_color(ray: &Ray, world: &World, depth: i32) -> Vec3 {
 }
 
 fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
-    let scale = 1.0 / samples_per_pixel as f32;
+    let scale = 1.0 / samples_per_pixel as f64;
     let r_scaled = (scale * color.x()).sqrt();
     let g_scaled = (scale * color.y()).sqrt();
     let b_scaled = (scale * color.z()).sqrt();
@@ -74,7 +74,7 @@ fn main() {
         look_at,
         Vec3::new(0.0, 1.0, 0.0),
         20.0,
-        ppm.width as f32 / ppm.height as f32,
+        ppm.width as f64 / ppm.height as f64,
         0.0,
         dist_to_focus,
         0.0,
@@ -89,8 +89,8 @@ fn main() {
         for i in 0..ppm.width {
             let mut c = Vec3::new(0.0, 0.0, 0.0);
             for _ in 0..samples {
-                let u = (i as f32 + random_double()) / ppm.width as f32;
-                let v = (j as f32 + random_double()) / ppm.height as f32;
+                let u = (i as f64 + random_double()) / ppm.width as f64;
+                let v = (j as f64 + random_double()) / ppm.height as f64;
                 let ray = camera.get_ray(u, v);
                 c += ray_color(&ray, &world, max_depth);
             }
