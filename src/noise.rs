@@ -44,6 +44,18 @@ impl Perlin {
         perlin_interp(&c, depth, depth, depth, u, v, w)
     }
 
+pub fn turb(&self, p: Vec3, depth: usize) -> f64 {
+    let mut accum = 0.0;
+    let mut temp_p = p.clone();
+    let mut weight = 1.0;
+    for _ in 0..depth {
+        accum += weight * self.noise(temp_p);
+        weight *= 0.5;
+        temp_p *= 2.0;
+    }
+    libm::fabs(accum)
+}
+
     fn perlin_generate_perm() -> std::vec::Vec<i32> {
         let mut p = vec![0; POINT_COUNT];
         for i in 0..POINT_COUNT {
