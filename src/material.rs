@@ -110,7 +110,7 @@ impl Materials {
     pub fn new_two_perlins() -> Materials {
         Materials {
             v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(NoiseTexture::new()),
+                albedo: Rc::new(NoiseTexture::new(2.0)),
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
