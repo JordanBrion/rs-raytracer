@@ -58,14 +58,14 @@ impl NoiseTexture {
     pub fn new(scale: f64) -> NoiseTexture {
         NoiseTexture {
             perlin: Perlin::new(),
-            scale: scale
+            scale: scale,
         }
     }
 }
 
 impl Texture for NoiseTexture {
     fn value(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
-        Vec3::new(1.0, 1.0, 1.0) * self.perlin.noise(self.scale * p)
+        Vec3::new(1.0, 1.0, 1.0) * 0.5 * (1.0 + self.perlin.noise(self.scale * p))
     }
 }
 

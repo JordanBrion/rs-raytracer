@@ -5,7 +5,7 @@ use super::vec3::*;
 const POINT_COUNT: usize = 256;
 
 pub struct Perlin {
-    ranfloat: std::vec::Vec<f64>,
+    ranfloat: std::vec::Vec<Vec3>,
     perm_x: std::vec::Vec<i32>,
     perm_y: std::vec::Vec<i32>,
     perm_z: std::vec::Vec<i32>,
@@ -14,7 +14,7 @@ pub struct Perlin {
 impl Perlin {
     pub fn new() -> Perlin {
         Perlin {
-            ranfloat: random_v_double(POINT_COUNT),
+            ranfloat: random_v_vec3(POINT_COUNT),
             perm_x: Self::perlin_generate_perm(),
             perm_y: Self::perlin_generate_perm(),
             perm_z: Self::perlin_generate_perm(),
@@ -26,14 +26,10 @@ impl Perlin {
         let i = p.x().floor() as usize & 255;
         let j = p.y().floor() as usize & 255;
         let k = p.z().floor() as usize & 255;
-        let mut u = p.x() - p.x().floor();
-        let mut v = p.y() - p.y().floor();
-        let mut w = p.z() - p.z().floor();
-        u = u * u * (3.0 - 2.0 * u);
-        v = v * v * (3.0 - 2.0 * v);
-        w = w * w * (3.0 - 2.0 * w);
-
-        let mut c = [0.0; 8];
+        let u = p.x() - p.x().floor();
+        let v = p.y() - p.y().floor();
+        let w = p.z() - p.z().floor();
+        let mut c = [Default::default(); 8];
 
         for di in 0..depth {
             for dj in 0..depth {
@@ -45,7 +41,7 @@ impl Perlin {
                 }
             }
         }
-        trilinear_interp(&c, depth, depth, depth, u, v, w)
+        perlin_interp(&c, depth, depth, depth, u, v, w)
     }
 
     fn perlin_generate_perm() -> std::vec::Vec<i32> {

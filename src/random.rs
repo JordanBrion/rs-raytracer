@@ -38,6 +38,14 @@ pub fn random_v_double(n: usize) -> std::vec::Vec<f64> {
     v
 }
 
+pub fn random_v_vec3(n: usize) -> std::vec::Vec<Vec3> {
+    let mut v = vec![Default::default(); n];
+    for i in 0..n {
+        v[i] = random_vec3_in_limit(-1.0, 1.0);
+    }
+    v
+}
+
 pub fn random_double_in_limit(min: f64, max: f64) -> f64 {
     min + (max - min) * random_double()
 }
@@ -59,6 +67,14 @@ pub fn random_in_unit_disk() -> Vec3 {
     }
 }
 
+pub fn random_vec3_in_limit(min: f64, max: f64) -> Vec3 {
+    Vec3::new(
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+    )
+}
+
 pub fn random_unit_vector() -> Vec3 {
     let a = random_double_in_limit(0.0, 2.0 * PI);
     let z = random_double_in_limit(-1.0, 1.0);
@@ -71,9 +87,5 @@ pub fn random_color() -> Vec3 {
 }
 
 pub fn random_color_in_limit(min: f64, max: f64) -> Vec3 {
-    Vec3::new(
-        random_double_in_limit(min, max),
-        random_double_in_limit(min, max),
-        random_double_in_limit(min, max),
-    )
+    random_vec3_in_limit(min, max)
 }
