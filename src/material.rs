@@ -107,6 +107,7 @@ impl Materials {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_two_perlins() -> Materials {
         Materials {
             v_lambertians: vec![Rc::new(Lambertian {
@@ -115,6 +116,16 @@ impl Materials {
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
         }   
+    }
+
+    pub fn new_earth() -> Materials {
+        Materials {
+            v_lambertians: vec![Rc::new(Lambertian {
+                albedo: Rc::new(ImageTexture::new("/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg")),
+            })],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
+        }
     }
 }
 

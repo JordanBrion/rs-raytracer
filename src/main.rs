@@ -80,8 +80,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_two_perlins();
-    let world = World::new_two_spheres(&materials);
+    let materials = Materials::new_earth();
+    let world = World::new_earth(&materials);
     let samples = 100;
     let max_depth = 50;
 

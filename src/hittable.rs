@@ -26,7 +26,7 @@ impl HitRecord {
             true => outward_normal,
             false => -outward_normal,
         };
-        let (u, v) = get_sphere_uv(hit_point);
+        let (u, v) = get_sphere_uv((hit_point - sphere.center) / sphere.radius);
         HitRecord {
             t: t,
             p: hit_point,
@@ -46,7 +46,7 @@ impl HitRecord {
             true => outward_normal,
             false => -outward_normal,
         };
-        let (u, v) = get_sphere_uv(hit_point);
+        let (u, v) = get_sphere_uv((hit_point - sphere.center(t)) / sphere.radius);
         HitRecord {
             t: t,
             p: hit_point,

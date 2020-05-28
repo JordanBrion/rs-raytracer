@@ -1,3 +1,6 @@
+extern crate image;
+extern crate num;
+
 use super::constants::*;
 use super::noise::*;
 use super::random::*;
@@ -77,4 +80,34 @@ pub fn get_sphere_uv(p: Vec3) -> (f64, f64) {
     let u = 1.0 - (phi + PI) / (2.0 * PI);
     let v = (theta + PI / 2.0) / PI;
     (u, v)
+}
+
+pub struct ImageTexture {
+    image: image::RgbImage,
+}
+
+impl ImageTexture {
+    pub fn new(file_name: &str) -> ImageTexture {
+        let img = image::open(file_name).unwrap();
+        ImageTexture {
+            image: img.to_rgb(),
+        }
+    }
+}
+
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
+        let (width, height) = self.image.dimensions();
+        let uu = num::clamp(u, 0.0, 1.0);
+        let vv = 1.0 - num::clamp(v, 0.0, 1.0);
+        let i = (uu * width as f64) as u32;
+        let j = (vv * height as f64) as u32;
+        let color_scale = 1.0 / 255.0;
+        let pixel = self.image.get_pixel(i, j);
+        Vec3::new(
+            color_scale * pixel[0] as f64,
+            color_scale * pixel[1] as f64,
+            color_scale * pixel[2] as f64,
+        )
+    }
 }

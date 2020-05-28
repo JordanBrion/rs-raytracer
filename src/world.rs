@@ -103,6 +103,7 @@ impl World {
         world
     }
 
+    #[allow(dead_code)]
     pub fn new_two_spheres(materials: &Materials) -> World {
         World {
             v_objects: vec![
@@ -113,6 +114,18 @@ impl World {
                 )),
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, 2.0, 0.0),
+                    2.0,
+                    materials.v_lambertians[0].clone(),
+                )),
+            ],
+        }
+    }
+
+    pub fn new_earth(materials: &Materials) -> World {
+        World {
+            v_objects: vec![
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, 0.0, 0.0),
                     2.0,
                     materials.v_lambertians[0].clone(),
                 )),
