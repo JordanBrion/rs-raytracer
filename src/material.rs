@@ -115,13 +115,15 @@ impl Materials {
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
-        }   
+        }
     }
 
     pub fn new_earth() -> Materials {
         Materials {
             v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(ImageTexture::new("/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg")),
+                albedo: Rc::new(ImageTexture::new(
+                    "/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg",
+                )),
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
@@ -137,6 +139,10 @@ pub trait Material {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool;
+
+    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
+        Vec3::new(0.0, 0.0, 0.0)
+    }
 }
 
 impl Material for Lambertian {
@@ -209,5 +215,25 @@ impl Material for Dielectric {
             *scattered = Ray::new(record.p, refracted, ray_in.time);
         }
         true
+    }
+}
+
+struct DiffuseLight {
+    emit: Box<dyn Texture>,
+}
+
+impl Material for DiffuseLight {
+    fn scatter(
+        &self,
+        ray_in: &Ray,
+        record: &HitRecord,
+        attenuation: &mut Vec3,
+        scattered: &mut Ray,
+    ) -> bool {
+        false
+    }
+
+    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
+        self.emit.value(u, v, p)
     }
 }
