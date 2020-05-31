@@ -218,6 +218,67 @@ impl World {
             ],
         }
     }
+
+    pub fn new_cornell_box(materials: &Materials) -> World {
+        World {
+            v_objects: vec![
+                Rc::new(FlipFace {
+                    ptr: Rc::new(YzRect {
+                        y0: 0.0,
+                        y1: 555.0,
+                        z0: 0.0,
+                        z1: 555.0,
+                        k: 555.0,
+                        mp: materials.v_lambertians[2].clone(),
+                    }),
+                }),
+                Rc::new(YzRect {
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                    mp: materials.v_lambertians[0].clone(),
+                }),
+                Rc::new(XzRect {
+                    x0: 213.0,
+                    x1: 343.0,
+                    z0: 227.0,
+                    z1: 332.0,
+                    k: 554.0,
+                    mp: materials.v_diffuse_lights[0].clone(),
+                }),
+                Rc::new(FlipFace {
+                    ptr: Rc::new(XzRect {
+                        mp: materials.v_lambertians[1].clone(),
+                        x0: 0.0,
+                        x1: 555.0,
+                        z0: 0.0,
+                        z1: 555.0,
+                        k: 0.0,
+                    }),
+                }),
+                Rc::new(XzRect {
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                    mp: materials.v_lambertians[1].clone(),
+                }),
+                Rc::new(FlipFace {
+                    ptr: Rc::new(XyRect {
+                        x0: 0.0,
+                        x1: 555.0,
+                        y0: 0.0,
+                        y1: 555.0,
+                        k: 555.0,
+                        mp: materials.v_lambertians[1].clone(),
+                    }),
+                }),
+            ],
+        }
+    }
 }
 
 impl Hittable for World {

@@ -80,8 +80,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_empty_cornell_box();
-    let world = World::new_empty_cornell_box(&materials);
+    let materials = Materials::new_cornell_box();
+    let world = World::new_cornell_box(&materials);
     let samples = 100;
     let max_depth = 50;
     let background_color= Vec3::new(0.0, 0.0, 0.0);

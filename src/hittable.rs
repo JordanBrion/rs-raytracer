@@ -124,3 +124,22 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB>;
 }
+
+pub struct FlipFace {
+    pub ptr: std::rc::Rc<dyn Hittable>,
+}
+
+impl Hittable for FlipFace {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        if let Some(mut record) = self.ptr.hit(ray, t_min, t_max) {
+            record.front_face = !record.front_face;
+            Some(record)
+        } else {
+            None
+        }
+    }
+
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+        self.ptr.bounding_box(t0, t1)
+    }
+}
