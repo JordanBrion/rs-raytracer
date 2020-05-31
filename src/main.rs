@@ -14,9 +14,10 @@ mod ray;
 mod sphere;
 mod texture;
 mod vec3;
-mod world;
+mod hittable_list;
 mod interpolation;
 mod rect;
+mod cube;
 
 use camera::*;
 use constants::*;
@@ -26,13 +27,13 @@ use ppm::*;
 use random::*;
 use ray::*;
 use vec3::*;
-use world::*;
+use hittable_list::*;
 
 fn color(x: f64, y: f64, z: f64) -> Vec3 {
     Vec3::new(x, y, z)
 }
 
-fn ray_color(ray: &Ray, background_color: Vec3, world: &World, depth: i32) -> Vec3 {
+fn ray_color(ray: &Ray, background_color: Vec3, world: &HittableList, depth: i32) -> Vec3 {
     if depth <= 0 {
         Default::default()
     } else if let Some(record) = world.hit(ray, 0.0001, INFINITY) {
@@ -65,7 +66,7 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 }
 
 fn main() {
-    let mut ppm = PPM::new(100, 200);
+    let mut ppm = PPM::new(200, 400);
     let look_from = Vec3::new(278.0, 278.0, -800.0);
     let look_at = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
@@ -81,7 +82,7 @@ fn main() {
         1.0,
     );
     let materials = Materials::new_cornell_box();
-    let world = World::new_cornell_box(&materials);
+    let world = HittableList::new_cornell_box(&materials);
     let samples = 100;
     let max_depth = 50;
     let background_color= Vec3::new(0.0, 0.0, 0.0);

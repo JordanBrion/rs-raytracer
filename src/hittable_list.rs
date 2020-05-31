@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use super::aabb::*;
+use super::cube::*;
 use super::hittable::*;
 use super::material::*;
 use super::random::*;
@@ -9,14 +10,22 @@ use super::rect::*;
 use super::sphere::*;
 use super::vec3::*;
 
-pub struct World {
+pub struct HittableList {
     pub v_objects: std::vec::Vec<Rc<dyn Hittable>>,
 }
 
-impl World {
+impl Default for HittableList {
+    fn default() -> Self {
+        HittableList {
+            v_objects: Default::default(),
+        }
+    }
+}
+
+impl HittableList {
     #[allow(dead_code)]
-    pub fn new(materials: &Materials) -> World {
-        World {
+    pub fn new(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, 0.0, -1.0),
@@ -47,8 +56,8 @@ impl World {
         }
     }
 
-    pub fn new_random(materials: &Materials) -> World {
-        let mut world = World {
+    pub fn new_random(materials: &Materials) -> HittableList {
+        let mut world = HittableList {
             v_objects: vec![
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, -1000.0, 0.0),
@@ -105,8 +114,8 @@ impl World {
     }
 
     #[allow(dead_code)]
-    pub fn new_two_spheres(materials: &Materials) -> World {
-        World {
+    pub fn new_two_spheres(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, -1000.0, 0.0),
@@ -123,8 +132,8 @@ impl World {
     }
 
     #[allow(dead_code)]
-    pub fn new_earth(materials: &Materials) -> World {
-        World {
+    pub fn new_earth(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![Rc::new(Sphere::new(
                 Vec3::new(0.0, 0.0, 0.0),
                 2.0,
@@ -134,8 +143,8 @@ impl World {
     }
 
     #[allow(dead_code)]
-    pub fn new_light_source(materials: &Materials) -> World {
-        World {
+    pub fn new_light_source(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![
                 Rc::new(Sphere::new(
                     Vec3::new(0.0, -1000.0, 0.0),
@@ -164,8 +173,8 @@ impl World {
         }
     }
 
-    pub fn new_empty_cornell_box(materials: &Materials) -> World {
-        World {
+    pub fn new_empty_cornell_box(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![
                 Rc::new(YzRect {
                     y0: 0.0,
@@ -219,8 +228,8 @@ impl World {
         }
     }
 
-    pub fn new_cornell_box(materials: &Materials) -> World {
-        World {
+    pub fn new_cornell_box(materials: &Materials) -> HittableList {
+        HittableList {
             v_objects: vec![
                 Rc::new(FlipFace {
                     ptr: Rc::new(YzRect {
@@ -276,12 +285,26 @@ impl World {
                         mp: materials.v_lambertians[1].clone(),
                     }),
                 }),
+                Rc::new(Cube::new(
+                    Vec3::new(130.0, 0.0, 65.0),
+                    Vec3::new(295.0, 165.0, 230.0),
+                    materials.v_lambertians[1].clone(),
+                )),
+                Rc::new(Cube::new(
+                    Vec3::new(265.0, 0.0, 295.0),
+                    Vec3::new(430.0, 330.0, 460.0),
+                    materials.v_lambertians[1].clone(),
+                )),
             ],
         }
     }
+
+    pub fn add(&mut self, hittable: std::rc::Rc<dyn Hittable>) {
+        self.v_objects.push(hittable);
+    }
 }
 
-impl Hittable for World {
+impl Hittable for HittableList {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut closest_record = None;
         let mut closest_so_far = t_max;

@@ -5,7 +5,7 @@ use super::hittable::*;
 use super::random::*;
 use super::ray::*;
 use super::sphere::*;
-use super::world::*;
+use super::hittable_list::*;
 
 use std::cmp::Ordering;
 
@@ -41,7 +41,7 @@ fn make_boundaries(
 }
 
 impl BVHNode {
-    pub fn new(world: &mut World, time0: f64, time1: f64) -> BVHNode {
+    pub fn new(world: &mut HittableList, time0: f64, time1: f64) -> BVHNode {
         BVHNode::new_a(&mut world.v_objects[0..], time0, time1)
     }
 
