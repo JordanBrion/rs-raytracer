@@ -3,6 +3,7 @@ use std::rc::Rc;
 use super::aabb::*;
 use super::material::*;
 use super::ray::*;
+use super::rect::*;
 use super::sphere::*;
 use super::texture::*;
 use super::vec3::*;
@@ -55,6 +56,26 @@ impl HitRecord {
             v: v,
             front_face: front_face,
             material: sphere.material.clone(),
+        }
+    }
+
+    pub fn new_rect_xy(t: f64, rect: &XyRect, ray: &Ray, x: f64, y: f64) -> HitRecord {
+        let u = (x - rect.x0) / (rect.x1 - rect.x0);
+        let v = (y - rect.y0) / (rect.y1 - rect.y0);
+        let outward_normal = Vec3::new(0.0, 0.0, 1.0);
+        let front_face = ray.direction.dot(&outward_normal) < 0.0;
+        let final_normal = match front_face {
+            true => outward_normal,
+            false => -outward_normal,
+        };
+        HitRecord {
+            t: t,
+            p: ray.point_at_parameter(t),
+            normal: final_normal,
+            u: u,
+            v: v,
+            front_face: front_face,
+            material: rect.mp.clone(),
         }
     }
 }

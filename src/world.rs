@@ -5,6 +5,7 @@ use super::hittable::*;
 use super::material::*;
 use super::random::*;
 use super::ray::*;
+use super::rect::*;
 use super::sphere::*;
 use super::vec3::*;
 
@@ -121,14 +122,43 @@ impl World {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_earth(materials: &Materials) -> World {
+        World {
+            v_objects: vec![Rc::new(Sphere::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                2.0,
+                materials.v_lambertians[0].clone(),
+            ))],
+        }
+    }
+
+    pub fn new_light_source(materials: &Materials) -> World {
         World {
             v_objects: vec![
                 Rc::new(Sphere::new(
-                    Vec3::new(0.0, 0.0, 0.0),
+                    Vec3::new(0.0, -1000.0, 0.0),
+                    1000.0,
+                    materials.v_lambertians[0].clone(),
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, 2.0, 0.0),
                     2.0,
                     materials.v_lambertians[0].clone(),
                 )),
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, 7.0, 0.0),
+                    2.0,
+                    materials.v_diffuse_lights[0].clone(),
+                )),
+                Rc::new(XyRect {
+                    mp: materials.v_diffuse_lights[0].clone(),
+                    x0: 3.0,
+                    x1: 5.0,
+                    y0: 1.0,
+                    y1: 3.0,
+                    k: -2.0,
+                }),
             ],
         }
     }

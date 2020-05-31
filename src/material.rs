@@ -27,6 +27,7 @@ pub struct Materials {
     pub v_lambertians: std::vec::Vec<Rc<Lambertian>>,
     pub v_metals: std::vec::Vec<Rc<Metal>>,
     pub v_dielectrics: std::vec::Vec<Rc<Dielectric>>,
+    pub v_diffuse_lights: std::vec::Vec<Rc<DiffuseLight>>,
 }
 
 impl Metal {
@@ -62,6 +63,7 @@ impl Materials {
             ],
             v_metals: vec![Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3))],
             v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
+            v_diffuse_lights: Default::default(),
         }
     }
 
@@ -78,6 +80,7 @@ impl Materials {
             ],
             v_metals: vec![Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0))],
             v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
+            v_diffuse_lights: Default::default(),
         };
         for _ in -11..11 {
             for _ in -11..11 {
@@ -104,6 +107,7 @@ impl Materials {
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
+            v_diffuse_lights: Default::default(),
         }
     }
 
@@ -115,9 +119,11 @@ impl Materials {
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
+            v_diffuse_lights: Default::default(),
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_earth() -> Materials {
         Materials {
             v_lambertians: vec![Rc::new(Lambertian {
@@ -127,6 +133,20 @@ impl Materials {
             })],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
+            v_diffuse_lights: Default::default(),
+        }
+    }
+
+    pub fn new_light_source() -> Materials {
+        Materials {
+            v_lambertians: vec![Rc::new(Lambertian {
+                albedo: Rc::new(NoiseTexture::new(4.0)),
+            })],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
+            v_diffuse_lights: vec![Rc::new(DiffuseLight {
+                emit: Box::new(SolidColor::new(4.0, 4.0, 4.0)),
+            })],
         }
     }
 }
@@ -218,7 +238,7 @@ impl Material for Dielectric {
     }
 }
 
-struct DiffuseLight {
+pub struct DiffuseLight {
     emit: Box<dyn Texture>,
 }
 
