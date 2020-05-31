@@ -133,6 +133,7 @@ impl World {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_light_source(materials: &Materials) -> World {
         World {
             v_objects: vec![
@@ -152,12 +153,67 @@ impl World {
                     materials.v_diffuse_lights[0].clone(),
                 )),
                 Rc::new(XyRect {
-                    mp: materials.v_diffuse_lights[0].clone(),
                     x0: 3.0,
                     x1: 5.0,
                     y0: 1.0,
                     y1: 3.0,
                     k: -2.0,
+                    mp: materials.v_diffuse_lights[0].clone(),
+                }),
+            ],
+        }
+    }
+
+    pub fn new_empty_cornell_box(materials: &Materials) -> World {
+        World {
+            v_objects: vec![
+                Rc::new(YzRect {
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                    mp: materials.v_lambertians[2].clone(),
+                }),
+                Rc::new(YzRect {
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                    mp: materials.v_lambertians[0].clone(),
+                }),
+                Rc::new(XzRect {
+                    x0: 213.0,
+                    x1: 343.0,
+                    z0: 227.0,
+                    z1: 332.0,
+                    k: 554.0,
+                    mp: materials.v_diffuse_lights[0].clone(),
+                }),
+                Rc::new(XzRect {
+                    mp: materials.v_lambertians[1].clone(),
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                }),
+                Rc::new(XzRect {
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                    mp: materials.v_lambertians[1].clone(),
+                }),
+                Rc::new(XyRect {
+                    x0: 0.0,
+                    x1: 555.0,
+                    y0: 0.0,
+                    y1: 555.0,
+                    k: 555.0,
+                    mp: materials.v_lambertians[1].clone(),
                 }),
             ],
         }

@@ -78,6 +78,46 @@ impl HitRecord {
             material: rect.mp.clone(),
         }
     }
+
+    pub fn new_rect_xz(t: f64, rect: &XzRect, ray: &Ray, x: f64, z: f64) -> HitRecord {
+        let u = (x - rect.x0) / (rect.x1 - rect.x0);
+        let v = (z - rect.z0) / (rect.z1 - rect.z0);
+        let outward_normal = Vec3::new(0.0, 1.0, 0.0);
+        let front_face = ray.direction.dot(&outward_normal) < 0.0;
+        let final_normal = match front_face {
+            true => outward_normal,
+            false => -outward_normal,
+        };
+        HitRecord {
+            t: t,
+            p: ray.point_at_parameter(t),
+            normal: final_normal,
+            u: u,
+            v: v,
+            front_face: front_face,
+            material: rect.mp.clone(),
+        }
+    }
+
+    pub fn new_rect_yz(t: f64, rect: &YzRect, ray: &Ray, y: f64, z: f64) -> HitRecord {
+        let u = (y - rect.y0) / (rect.y1 - rect.y0);
+        let v = (z - rect.z0) / (rect.z1 - rect.z0);
+        let outward_normal = Vec3::new(1.0, 0.0, 0.0);
+        let front_face = ray.direction.dot(&outward_normal) < 0.0;
+        let final_normal = match front_face {
+            true => outward_normal,
+            false => -outward_normal,
+        };
+        HitRecord {
+            t: t,
+            p: ray.point_at_parameter(t),
+            normal: final_normal,
+            u: u,
+            v: v,
+            front_face: front_face,
+            material: rect.mp.clone(),
+        }
+    }
 }
 
 pub trait Hittable {
