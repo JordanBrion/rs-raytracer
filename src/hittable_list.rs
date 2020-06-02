@@ -9,6 +9,8 @@ use super::ray::*;
 use super::rect::*;
 use super::sphere::*;
 use super::vec3::*;
+use super::rotate::*;
+use super::translate::*;
 
 pub struct HittableList {
     pub v_objects: std::vec::Vec<Rc<dyn Hittable>>,
@@ -295,6 +297,85 @@ impl HittableList {
                     Vec3::new(430.0, 330.0, 460.0),
                     materials.v_lambertians[1].clone(),
                 )),
+            ],
+        }
+    }
+
+    pub fn new_rotated_cornell_box(materials: &Materials) -> HittableList {
+        let box1 = Rc::new(Cube::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(165.0, 330.0, 165.0),
+            materials.v_lambertians[1].clone(),
+        ));
+        let r_box1 = Rc::new(RotateY::new(box1.clone(), 15.0));
+        let t_box1 = Rc::new(Translate { ptr: r_box1.clone(), offset: Vec3::new(265.0, 0.0, 295.0) });
+
+        let box2 = Rc::new(Cube::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(165.0, 165.0, 165.0),
+            materials.v_lambertians[1].clone(),
+        ));
+        let r_box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
+        let t_box2 = Rc::new(Translate { ptr: r_box2.clone(), offset: Vec3::new(130.0, 0.0, 65.0) });
+
+        HittableList {
+            v_objects: vec![
+                Rc::new(FlipFace {
+                    ptr: Rc::new(YzRect {
+                        y0: 0.0,
+                        y1: 555.0,
+                        z0: 0.0,
+                        z1: 555.0,
+                        k: 555.0,
+                        mp: materials.v_lambertians[2].clone(),
+                    }),
+                }),
+                Rc::new(YzRect {
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                    mp: materials.v_lambertians[0].clone(),
+                }),
+                Rc::new(XzRect {
+                    x0: 213.0,
+                    x1: 343.0,
+                    z0: 227.0,
+                    z1: 332.0,
+                    k: 554.0,
+                    mp: materials.v_diffuse_lights[0].clone(),
+                }),
+                Rc::new(FlipFace {
+                    ptr: Rc::new(XzRect {
+                        mp: materials.v_lambertians[1].clone(),
+                        x0: 0.0,
+                        x1: 555.0,
+                        z0: 0.0,
+                        z1: 555.0,
+                        k: 0.0,
+                    }),
+                }),
+                Rc::new(XzRect {
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                    mp: materials.v_lambertians[1].clone(),
+                }),
+                Rc::new(FlipFace {
+                    ptr: Rc::new(XyRect {
+                        x0: 0.0,
+                        x1: 555.0,
+                        y0: 0.0,
+                        y1: 555.0,
+                        k: 555.0,
+                        mp: materials.v_lambertians[1].clone(),
+                    }),
+                }),
+                t_box1,
+                t_box2,
             ],
         }
     }

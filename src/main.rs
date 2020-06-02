@@ -18,6 +18,8 @@ mod hittable_list;
 mod interpolation;
 mod rect;
 mod cube;
+mod translate;
+mod rotate;
 
 use camera::*;
 use constants::*;
@@ -81,8 +83,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_cornell_box();
-    let world = HittableList::new_cornell_box(&materials);
+    let materials = Materials::new_rotated_cornell_box();
+    let world = HittableList::new_rotated_cornell_box(&materials);
     let samples = 100;
     let max_depth = 50;
     let background_color= Vec3::new(0.0, 0.0, 0.0);

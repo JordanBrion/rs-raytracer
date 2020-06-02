@@ -193,6 +193,10 @@ impl Materials {
             })],
         }
     }
+
+    pub fn new_rotated_cornell_box() -> Materials {
+        Self::new_cornell_box()
+    }
 }
 
 pub trait Material {
