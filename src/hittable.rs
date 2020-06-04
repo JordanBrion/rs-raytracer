@@ -1,7 +1,9 @@
 use std::rc::Rc;
 
 use super::aabb::*;
+use super::constants::*;
 use super::material::*;
+use super::random::*;
 use super::ray::*;
 use super::rect::*;
 use super::sphere::*;
@@ -150,5 +152,78 @@ impl Hittable for FlipFace {
 
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
         self.ptr.bounding_box(t0, t1)
+    }
+}
+
+pub struct ConstantMedium {
+    pub boundary: Rc<dyn Hittable>,
+    pub phase_function: Rc<dyn Material>,
+    pub neg_inv_density: f64,
+}
+
+impl ConstantMedium {
+    pub fn new(b: Rc<dyn Hittable>, d: f64, a: Rc<dyn Texture>) -> ConstantMedium {
+        ConstantMedium {
+            boundary: b,
+            phase_function: Rc::new(Isotropic { albedo: a }),
+            neg_inv_density: -1.0 / d,
+        }
+    }
+}
+
+impl Hittable for ConstantMedium {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        let enableDebug = false;
+        let debugging = enableDebug && random_double() < 0.00001;
+        if let Some(mut rec1) = self.boundary.hit(ray, -INFINITY, INFINITY) {
+            if let Some(mut rec2) = self.boundary.hit(ray, rec1.t + 0.001, INFINITY) {
+                if debugging {
+                    println!("t0={0};t1={1};", rec1.t, rec2.t);
+                }
+                if rec1.t < t_min {
+                    rec1.t = t_min;
+                }
+                if rec2.t > t_max {
+                    rec2.t = t_max;
+                }
+                if rec1.t >= rec2.t {
+                    return None;
+                }
+                if rec1.t < 0.0 {
+                    rec1.t = 0.0;
+                }
+                let ray_length = ray.direction.length();
+                let distance_inside_boundary = (rec2.t - rec1.t) * ray_length;
+                let hit_distance = self.neg_inv_density * random_double().ln();
+                if hit_distance > distance_inside_boundary {
+                    return None;
+                } else {
+                    let t = rec1.t + hit_distance / ray_length;
+                    let p = ray.point_at_parameter(t);
+                    if debugging {
+                        println!("hit_distance = {}", hit_distance);
+                        println!("t = {}", t);
+                        println!("p = {}", p);
+                    }
+                    return Some(HitRecord {
+                        t: t,
+                        p: p,
+                        normal: Vec3::new(1.0, 0.0, 0.0),
+                        u: 0.0,
+                        v: 0.0,
+                        front_face: true,
+                        material: self.phase_function.clone(),
+                    });
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+        self.boundary.bounding_box(t0, t1)
     }
 }

@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Div;
@@ -257,5 +258,11 @@ impl DivAssign<f64> for Vec3 {
         self.e[0] /= other;
         self.e[1] /= other;
         self.e[2] /= other;
+    }
+}
+
+impl fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.x(), self.y(), self.z())
     }
 }

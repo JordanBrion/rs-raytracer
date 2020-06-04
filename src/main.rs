@@ -83,8 +83,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_rotated_cornell_box();
-    let world = HittableList::new_rotated_cornell_box(&materials);
+    let materials = Materials::new_smoked_cornell_box();
+    let world = HittableList::new_smoked_cornell_box(&materials);
     let samples = 100;
     let max_depth = 50;
     let background_color= Vec3::new(0.0, 0.0, 0.0);

@@ -173,6 +173,7 @@ impl Materials {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_cornell_box() -> Materials {
         Materials {
             v_lambertians: vec![
@@ -194,8 +195,30 @@ impl Materials {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_rotated_cornell_box() -> Materials {
         Self::new_cornell_box()
+    }
+
+    pub fn new_smoked_cornell_box() -> Materials {
+        Materials {
+            v_lambertians: vec![
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.65, 0.05, 0.05)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.12, 0.45, 0.15)),
+                }),
+            ],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
+            v_diffuse_lights: vec![Rc::new(DiffuseLight {
+                emit: Box::new(SolidColor::new(7.0, 7.0, 7.0)),
+            })],
+        }
     }
 }
 
@@ -303,5 +326,18 @@ impl Material for DiffuseLight {
 
     fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
         self.emit.value(u, v, p)
+    }
+}
+
+pub struct Isotropic {
+    pub albedo: Rc<dyn Texture>,
+}
+
+impl Material for Isotropic {
+
+    fn scatter(&self, ray_in: &Ray, record: &HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool {
+        *scattered = Ray::new(record.p, random_in_unit_sphere(), ray_in.time);
+        *attenuation = self.albedo.value(record.u, record.v, record.p);
+        return true;
     }
 }
