@@ -2,10 +2,10 @@ use std::rc::Rc;
 
 use super::aabb::*;
 use super::hittable::*;
+use super::hittable_list::*;
 use super::random::*;
 use super::ray::*;
 use super::sphere::*;
-use super::hittable_list::*;
 
 use std::cmp::Ordering;
 
@@ -59,19 +59,37 @@ impl BVHNode {
         };
         let boundaries = make_boundaries(v_objects, axis);
         return match boundaries {
-            (Some(left_index), Some(right_index)) => BVHNode {
-                left: left_index.clone(),
-                right: right_index.clone(),
-                aabb: Default::default(),
+            (Some(left), Some(right)) => BVHNode {
+                left: left.clone(),
+                right: right.clone(),
+                aabb: match (
+                    left.bounding_box(time0, time1),
+                    right.bounding_box(time0, time1),
+                ) {
+                    (Some(aabb0), Some(aabb1)) => AABB::surrounding_box(aabb0, aabb1),
+                    (_, Some(aabb)) => aabb,
+                    (Some(aabb), _) => aabb,
+                    _ => Default::default(),
+                },
             },
             _ => {
                 v_objects.sort_by(comparator);
                 let mid = v_objects.len() / 2;
+                let left = Rc::new(BVHNode::new_a(&mut v_objects[0..mid], time0, time1));
+                let right = Rc::new(BVHNode::new_a(&mut v_objects[mid..], time0, time1));
 
                 BVHNode {
-                    left: Rc::new(BVHNode::new_a(&mut v_objects[0..mid], time0, time1)),
-                    right: Rc::new(BVHNode::new_a(&mut v_objects[mid..], time0, time1)),
-                    aabb: Default::default(),
+                    left: left.clone(),
+                    right: right.clone(),
+                    aabb: match (
+                        left.bounding_box(time0, time1),
+                        right.bounding_box(time0, time1),
+                    ) {
+                        (Some(aabb0), Some(aabb1)) => AABB::surrounding_box(aabb0, aabb1),
+                        (_, Some(aabb)) => aabb,
+                        (Some(aabb), _) => aabb,
+                        _ => Default::default(),
+                    },
                 }
             }
         };

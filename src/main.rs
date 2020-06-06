@@ -69,7 +69,7 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 
 fn main() {
     let mut ppm = PPM::new(100, 200);
-    let look_from = Vec3::new(278.0, 278.0, -800.0);
+    let look_from = Vec3::new(278.0, 800.0, -800.0);
     let look_at = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
     let camera = Camera::new(
