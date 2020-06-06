@@ -68,7 +68,7 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 }
 
 fn main() {
-    let mut ppm = PPM::new(200, 400);
+    let mut ppm = PPM::new(100, 200);
     let look_from = Vec3::new(278.0, 278.0, -800.0);
     let look_at = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
@@ -83,8 +83,8 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_smoked_cornell_box();
-    let world = HittableList::new_smoked_cornell_box(&materials);
+    let materials = Materials::final_scene_book2();
+    let world = HittableList::final_scene_book2(&materials);
     let samples = 100;
     let max_depth = 50;
     let background_color= Vec3::new(0.0, 0.0, 0.0);

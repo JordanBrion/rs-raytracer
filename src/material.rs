@@ -200,6 +200,7 @@ impl Materials {
         Self::new_cornell_box()
     }
 
+    #[allow(dead_code)]
     pub fn new_smoked_cornell_box() -> Materials {
         Materials {
             v_lambertians: vec![
@@ -215,6 +216,39 @@ impl Materials {
             ],
             v_metals: Default::default(),
             v_dielectrics: Default::default(),
+            v_diffuse_lights: vec![Rc::new(DiffuseLight {
+                emit: Box::new(SolidColor::new(7.0, 7.0, 7.0)),
+            })],
+        }
+    }
+
+    pub fn final_scene_book2() -> Materials {
+        Materials {
+            v_lambertians: vec![
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.48, 0.83, 0.53)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.7, 0.3, 0.1)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(ImageTexture::new("/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg")),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(NoiseTexture::new(0.1)),
+                }),
+                Rc::new(Lambertian {
+                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
+                }),
+            ],
+            v_metals: vec![
+                Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0))
+            ],
+            v_dielectrics: vec![
+                Rc::new(Dielectric {
+                    ref_idx: 1.5
+                })
+            ],
             v_diffuse_lights: vec![Rc::new(DiffuseLight {
                 emit: Box::new(SolidColor::new(7.0, 7.0, 7.0)),
             })],

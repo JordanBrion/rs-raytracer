@@ -1,17 +1,18 @@
 use std::rc::Rc;
 
 use super::aabb::*;
+use super::bvh::*;
 use super::cube::*;
 use super::hittable::*;
 use super::material::*;
 use super::random::*;
 use super::ray::*;
 use super::rect::*;
-use super::sphere::*;
-use super::vec3::*;
 use super::rotate::*;
-use super::translate::*;
+use super::sphere::*;
 use super::texture::*;
+use super::translate::*;
+use super::vec3::*;
 
 pub struct HittableList {
     pub v_objects: std::vec::Vec<Rc<dyn Hittable>>,
@@ -312,7 +313,10 @@ impl HittableList {
             materials.v_lambertians[1].clone(),
         ));
         let r_box1 = Rc::new(RotateY::new(box1.clone(), 15.0));
-        let t_box1 = Rc::new(Translate { ptr: r_box1.clone(), offset: Vec3::new(265.0, 0.0, 295.0) });
+        let t_box1 = Rc::new(Translate {
+            ptr: r_box1.clone(),
+            offset: Vec3::new(265.0, 0.0, 295.0),
+        });
 
         let box2 = Rc::new(Cube::new(
             Vec3::new(0.0, 0.0, 0.0),
@@ -320,7 +324,10 @@ impl HittableList {
             materials.v_lambertians[1].clone(),
         ));
         let r_box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
-        let t_box2 = Rc::new(Translate { ptr: r_box2.clone(), offset: Vec3::new(130.0, 0.0, 65.0) });
+        let t_box2 = Rc::new(Translate {
+            ptr: r_box2.clone(),
+            offset: Vec3::new(130.0, 0.0, 65.0),
+        });
 
         HittableList {
             v_objects: vec![
@@ -391,7 +398,10 @@ impl HittableList {
             materials.v_lambertians[1].clone(),
         ));
         let r_box1 = Rc::new(RotateY::new(box1.clone(), 15.0));
-        let t_box1 = Rc::new(Translate { ptr: r_box1.clone(), offset: Vec3::new(265.0, 0.0, 295.0) });
+        let t_box1 = Rc::new(Translate {
+            ptr: r_box1.clone(),
+            offset: Vec3::new(265.0, 0.0, 295.0),
+        });
 
         let box2 = Rc::new(Cube::new(
             Vec3::new(0.0, 0.0, 0.0),
@@ -399,7 +409,10 @@ impl HittableList {
             materials.v_lambertians[1].clone(),
         ));
         let r_box2 = Rc::new(RotateY::new(box2.clone(), -18.0));
-        let t_box2 = Rc::new(Translate { ptr: r_box2.clone(), offset: Vec3::new(130.0, 0.0, 65.0) });
+        let t_box2 = Rc::new(Translate {
+            ptr: r_box2.clone(),
+            offset: Vec3::new(130.0, 0.0, 65.0),
+        });
 
         HittableList {
             v_objects: vec![
@@ -457,9 +470,132 @@ impl HittableList {
                         mp: materials.v_lambertians[1].clone(),
                     }),
                 }),
-                Rc::new(ConstantMedium::new(t_box1.clone(), 0.01, Rc::new(SolidColor::new(0.0, 0.0, 0.0)))),
-                Rc::new(ConstantMedium::new(t_box2.clone(), 0.01, Rc::new(SolidColor::new(1.0, 1.0, 1.0)))),
+                Rc::new(ConstantMedium::new(
+                    t_box1.clone(),
+                    0.01,
+                    Rc::new(SolidColor::new(0.0, 0.0, 0.0)),
+                )),
+                Rc::new(ConstantMedium::new(
+                    t_box2.clone(),
+                    0.01,
+                    Rc::new(SolidColor::new(1.0, 1.0, 1.0)),
+                )),
             ],
+        }
+    }
+
+    pub fn final_scene_book2(materials: &Materials) -> HittableList {
+        let mut v_boxes1: HittableList = Default::default();
+
+        let boxes_per_side = 20;
+        for i in 0..boxes_per_side {
+            let fi = i as f64;
+            for j in 0..boxes_per_side {
+                let fj = j as f64;
+                let w = 100.0;
+                let x0 = -1000.0 + fi * w;
+                let y0 = 0.0;
+                let z0 = -1000.0 + fj * w;
+                let x1 = x0 + w;
+                let y1 = random_double_in_limit(1.0, 101.0);
+                let z1 = z0 + w;
+                v_boxes1.add(Rc::new(Cube::new(
+                    Vec3::new(x0, y0, z0),
+                    Vec3::new(x1, y1, z1),
+                    materials.v_lambertians[0].clone(),
+                )));
+            }
+        }
+
+        let mut v_objects: std::vec::Vec<Rc<dyn Hittable>> = Default::default();
+
+        v_objects.push(Rc::new(BVHNode::new(&mut v_boxes1, 0.0, 1.0)));
+
+        v_objects.push(Rc::new(XzRect {
+            x0: 123.0,
+            x1: 423.0,
+            z0: 147.0,
+            z1: 412.0,
+            k: 554.0,
+            mp: materials.v_diffuse_lights[0].clone(),
+        }));
+
+        let center1 = Vec3::new(400.0, 400.0, 200.0);
+        let center2 = center1 + Vec3::new(30.0, 0.0, 0.0);
+        v_objects.push(Rc::new(MovingSphere::new(
+            center1,
+            center2,
+            0.0,
+            1.0,
+            50.0,
+            materials.v_lambertians[1].clone(),
+        )));
+
+        v_objects.push(Rc::new(Sphere::new(
+            Vec3::new(260.0, 150.0, 45.0),
+            50.0,
+            materials.v_dielectrics[0].clone(),
+        )));
+        v_objects.push(Rc::new(Sphere::new(
+            Vec3::new(0.0, 150.0, 145.0),
+            50.0,
+            materials.v_metals[0].clone(),
+        )));
+
+        let boundary1 = Rc::new(Sphere::new(
+            Vec3::new(360.0, 150.0, 145.0),
+            70.0,
+            materials.v_dielectrics[0].clone(),
+        ));
+        v_objects.push(boundary1.clone());
+        v_objects.push(Rc::new(ConstantMedium::new(
+            boundary1.clone(),
+            0.2,
+            Rc::new(SolidColor::new(0.2, 0.4, 0.9)),
+        )));
+        let boundary2 = Rc::new(Sphere::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            5000.0,
+            materials.v_dielectrics[0].clone(),
+        ));
+        v_objects.push(Rc::new(ConstantMedium::new(
+            boundary2.clone(),
+            0.0001,
+            Rc::new(SolidColor::new(1.0, 1.0, 1.0)),
+        )));
+
+        v_objects.push(Rc::new(Sphere::new(
+            Vec3::new(400.0, 200.0, 400.0),
+            100.0,
+            materials.v_lambertians[2].clone(),
+        )));
+
+        v_objects.push(Rc::new(Sphere::new(
+            Vec3::new(220.0, 280.0, 300.0),
+            80.0,
+            materials.v_lambertians[3].clone(),
+        )));
+
+        let mut boxes2: HittableList = Default::default();
+        let ns = 1000;
+        for _ in 0..ns {
+            boxes2.add(Rc::new(Sphere::new(
+                random_vec3_in_limit(0.0, 165.0),
+                10.0,
+                materials.v_lambertians[4].clone(),
+            )));
+        }
+
+        v_objects.push(Rc::new(Translate {
+            ptr: Rc::new(RotateY::new(
+                Rc::new(BVHNode::new(&mut boxes2, 0.0, 1.0)),
+                15.0,
+            )),
+            offset: Vec3::new(-100.0, 270.0, 395.0),
+        }));
+
+        HittableList {
+            v_objects: v_objects,
         }
     }
 
