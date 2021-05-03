@@ -72,6 +72,8 @@ fn main() {
         ppm.width as f64 / ppm.height as f64,
         0.1,
         dist_to_focus,
+        0.0,
+        1.0,
     );
     let materials = Materials::new_random();
     let world = World::new_random(&materials);

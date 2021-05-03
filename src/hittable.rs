@@ -12,20 +12,18 @@ pub struct HitRecord<'a> {
 }
 
 impl<'a> HitRecord<'a> {
-    pub fn new(t: f64, sphere: &'a Sphere, ray: &Ray) -> HitRecord<'a> {
+    pub fn new<T>(t: f64, sphere: &'a T, ray: &Ray) -> HitRecord<'a>
+    where
+        T: NormalOp + MaterialOp,
+    {
         let hit_point = ray.point_at_parameter(t);
-        let outward_normal = (hit_point - sphere.center) / sphere.radius;
-        let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
-        let final_normal = match front_face {
-            true => outward_normal,
-            false => -outward_normal,
-        };
+        let (front_facing, normal) = sphere.normal(ray, t);
         HitRecord {
             t: t,
             p: hit_point,
-            normal: final_normal,
-            front_face: front_face,
-            material: sphere.material,
+            normal: normal,
+            front_face: front_facing,
+            material: sphere.material(),
         }
     }
 }

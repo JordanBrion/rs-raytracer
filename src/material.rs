@@ -89,6 +89,10 @@ pub trait Material {
     ) -> bool;
 }
 
+pub trait MaterialOp {
+    fn material(&self) -> &dyn Material;
+}
+
 impl Material for Lambertian {
     fn scatter(
         &self,
