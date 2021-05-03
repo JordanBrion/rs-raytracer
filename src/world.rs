@@ -51,9 +51,9 @@ impl<'a> World<'a> {
             for b in range_x.clone() {
                 let choose_mat = random_double();
                 let center = Vec3::new(
-                    (a as i64 - bias) as f32 + 0.9 * random_double(),
+                    (a as i64 - bias) as f64 + 0.9 * random_double(),
                     0.2,
-                    (b as i64 - bias) as f32 + 0.9 * random_double(),
+                    (b as i64 - bias) as f64 + 0.9 * random_double(),
                 );
                 if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                     world.v_spheres.push(Sphere::new(
@@ -75,7 +75,7 @@ impl<'a> World<'a> {
 }
 
 impl<'a> Hittable for World<'a> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut closest_record = None;
         let mut closest_so_far = t_max;
         for sphere in &self.v_spheres {

@@ -25,12 +25,12 @@ pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
     }
 }
 
-pub fn random_double() -> f32 {
+pub fn random_double() -> f64 {
     let mut rng = rand::thread_rng();
-    rng.gen::<f32>()
+    rng.gen::<f64>()
 }
 
-pub fn random_double_in_limit(min: f32, max: f32) -> f32 {
+pub fn random_double_in_limit(min: f64, max: f64) -> f64 {
     min + (max - min) * random_double()
 }
 
@@ -54,7 +54,7 @@ pub fn random_color() -> Vec3 {
     random_unit_vector()
 }
 
-pub fn random_color_in_limit(min: f32, max: f32) -> Vec3 {
+pub fn random_color_in_limit(min: f64, max: f64) -> Vec3 {
     Vec3::new(
         random_double_in_limit(min, max),
         random_double_in_limit(min, max),

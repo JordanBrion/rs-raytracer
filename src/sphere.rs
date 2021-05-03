@@ -1,3 +1,5 @@
+use num::traits::Pow;
+
 use super::hittable::*;
 use super::material::*;
 use super::ray::*;
@@ -5,12 +7,12 @@ use super::vec3::*;
 
 pub struct Sphere<'a> {
     pub center: Vec3,
-    pub radius: f32,
+    pub radius: f64,
     pub material: &'a dyn Material,
 }
 
 impl<'a> Sphere<'a> {
-    pub fn new(center: Vec3, radius: f32, material: &'a dyn Material) -> Sphere<'a> {
+    pub fn new(center: Vec3, radius: f64, material: &'a dyn Material) -> Sphere<'a> {
         Sphere {
             center: center,
             radius: radius,
@@ -20,7 +22,7 @@ impl<'a> Sphere<'a> {
 }
 
 impl<'a> Hittable for Sphere<'a> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.squared_length();
         let half_b = oc.dot(&ray.direction);

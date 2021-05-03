@@ -4,7 +4,7 @@ use super::sphere::*;
 use super::vec3::*;
 
 pub struct HitRecord<'a> {
-    pub t: f32,
+    pub t: f64,
     pub p: Vec3,
     pub normal: Vec3,
     pub front_face: bool,
@@ -12,10 +12,10 @@ pub struct HitRecord<'a> {
 }
 
 impl<'a> HitRecord<'a> {
-    pub fn new(t: f32, sphere: &'a Sphere, ray: &Ray) -> HitRecord<'a> {
+    pub fn new(t: f64, sphere: &'a Sphere, ray: &Ray) -> HitRecord<'a> {
         let hit_point = ray.point_at_parameter(t);
         let outward_normal = (hit_point - sphere.center) / sphere.radius;
-        let front_face = ray.direction.dot(&outward_normal) < 0.0f32;
+        let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
         let final_normal = match front_face {
             true => outward_normal,
             false => -outward_normal,
@@ -31,5 +31,5 @@ impl<'a> HitRecord<'a> {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
