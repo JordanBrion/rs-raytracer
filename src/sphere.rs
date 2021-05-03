@@ -103,7 +103,7 @@ impl<'a> Hittable for MovingSphere<'a> {
                 return None;
             }
         }
-        Some(HitRecord::new(root, &self, ray))
+        Some(HitRecord::new(root, self, ray))
     }
 }
 

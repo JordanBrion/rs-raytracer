@@ -96,13 +96,13 @@ pub trait MaterialOp {
 impl Material for Lambertian {
     fn scatter(
         &self,
-        _ray_in: &Ray,
+        ray_in: &Ray,
         record: &HitRecord,
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
         let scatter_direction = record.normal + random_in_unit_sphere();
-        *scattered = Ray::new(record.p, scatter_direction);
+        *scattered = Ray::new(record.p, scatter_direction, ray_in.time);
         *attenuation = self.albedo;
         true
     }
@@ -117,7 +117,7 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let reflected = ray_in.direction.unit_vector().reflect(record.normal);
-        *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere());
+        *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere(), ray_in.time);
         *attenuation = self.albedo;
         scattered.direction.dot(&record.normal) > 0.0
     }
@@ -150,13 +150,13 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         if etai_over_etat * sin_theta > 1.0 {
             let reflected = unit_direction.reflect(record.normal);
-            *scattered = Ray::new(record.p, reflected);
+            *scattered = Ray::new(record.p, reflected, ray_in.time);
         } else if Self::schlick(cos_theta, etai_over_etat) > random_double() {
             let reflected = unit_direction.reflect(record.normal);
-            *scattered = Ray::new(record.p, reflected);
+            *scattered = Ray::new(record.p, reflected, ray_in.time);
         } else {
             let refracted = Vec3::refract(unit_direction, record.normal, etai_over_etat);
-            *scattered = Ray::new(record.p, refracted);
+            *scattered = Ray::new(record.p, refracted, ray_in.time);
         }
         true
     }
