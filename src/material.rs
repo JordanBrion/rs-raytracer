@@ -52,18 +52,17 @@ impl Materials {
     }
 
     pub fn new_random() -> Materials {
-        let mut materials= Materials {
-            v_lambertians: vec![Lambertian {
-                                    albedo: Vec3::new(0.5, 0.5, 0.5),
-                                },
-                                Lambertian {
-                                    albedo: Vec3::new(0.4, 0.2, 0.1),
-                                }],
-            v_metals: vec![Metal::new(
-                Vec3::new(0.7, 0.6, 0.5),
-                0.0,
-            )],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }]
+        let mut materials = Materials {
+            v_lambertians: vec![
+                Lambertian {
+                    albedo: Vec3::new(0.5, 0.5, 0.5),
+                },
+                Lambertian {
+                    albedo: Vec3::new(0.4, 0.2, 0.1),
+                },
+            ],
+            v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
+            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
         };
         for _ in -11..11 {
             for _ in -11..11 {

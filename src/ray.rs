@@ -11,7 +11,7 @@ impl Ray {
         Ray {
             origin: origin,
             direction: direction,
-            time: time
+            time: time,
         }
     }
 
