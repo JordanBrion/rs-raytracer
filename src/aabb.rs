@@ -4,9 +4,10 @@ use super::hittable::*;
 use super::ray::*;
 use super::vec3::*;
 
+#[derive(Clone)]
 pub struct AABB {
-    minimum: Vec3,
-    maximum: Vec3,
+    pub minimum: Vec3,
+    pub maximum: Vec3,
 }
 
 impl AABB {
@@ -56,7 +57,7 @@ impl Hittable for AABB {
     fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
         Some(AABB {
             minimum: self.minimum,
-            maximum: self.maximum
+            maximum: self.maximum,
         })
     }
 }

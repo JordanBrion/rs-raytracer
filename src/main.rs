@@ -2,6 +2,7 @@ extern crate num;
 
 mod aabb;
 mod angles;
+mod bvh;
 mod camera;
 mod constants;
 mod hittable;

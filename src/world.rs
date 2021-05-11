@@ -184,7 +184,7 @@ impl<'a> Hittable for World<'a> {
         if v_all_hittables.is_empty() {
             return None;
         } else {
-            let output_box: AABB = Default::default();
+            let mut output_box: AABB = Default::default();
             let first_box = true;
             for hittable in v_all_hittables {
                 if let Some(temp_box) = hittable.bounding_box(time0, time1) {
