@@ -1,5 +1,3 @@
-use num::traits::Pow;
-
 use super::hittable::*;
 use super::material::*;
 use super::ray::*;
@@ -11,7 +9,7 @@ pub struct Sphere<'a> {
     pub material: &'a dyn Material,
 }
 
-struct MovingSphere<'a> {
+pub struct MovingSphere<'a> {
     center0: Vec3,
     center1: Vec3,
     time0: f64,
@@ -31,7 +29,7 @@ impl<'a> Sphere<'a> {
 }
 
 impl<'a> MovingSphere<'a> {
-    fn new(
+    pub fn new(
         center0: Vec3,
         center1: Vec3,
         time0: f64,

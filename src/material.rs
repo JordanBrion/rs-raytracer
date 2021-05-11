@@ -67,7 +67,7 @@ impl Materials {
         for _ in -11..11 {
             for _ in -11..11 {
                 materials.v_lambertians.push(Lambertian {
-                    albedo: random_color(),
+                    albedo: random_color() * random_color(),
                 });
                 materials.v_metals.push(Metal::new(
                     random_color_in_limit(0.5, 1.0),
@@ -117,7 +117,11 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let reflected = ray_in.direction.unit_vector().reflect(record.normal);
-        *scattered = Ray::new(record.p, reflected + self.fuzz * random_in_unit_sphere(), ray_in.time);
+        *scattered = Ray::new(
+            record.p,
+            reflected + self.fuzz * random_in_unit_sphere(),
+            ray_in.time,
+        );
         *attenuation = self.albedo;
         scattered.direction.dot(&record.normal) > 0.0
     }

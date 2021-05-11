@@ -76,7 +76,7 @@ fn main() {
         1.0,
     );
     let materials = Materials::new_random();
-    let world = World::new_random(&materials);
+    let world = World::new_random_with_moving_spheres(&materials);
     let samples = 10;
     let max_depth = 50;
 
