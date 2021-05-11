@@ -4,9 +4,18 @@ use super::hittable::*;
 use super::ray::*;
 use super::vec3::*;
 
-struct AABB {
+pub struct AABB {
     minimum: Vec3,
     maximum: Vec3,
+}
+
+impl AABB {
+    pub fn surrounding_box(aabb0: AABB, aabb1: AABB) -> AABB {
+        AABB {
+            minimum: Default::default(),
+            maximum: Default::default(),
+        }
+    }
 }
 
 impl Hittable for AABB {

@@ -1,3 +1,4 @@
+use super::aabb::*;
 use super::hittable::*;
 use super::material::*;
 use super::ray::*;
@@ -80,6 +81,14 @@ impl<'a> Hittable for Sphere<'a> {
         }
         return None;
     }
+
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+        let radius_vector = Vec3::new(self.radius, self.radius, self.radius);
+        Some(AABB {
+            minimum: self.center - radius_vector,
+            maximum: self.center + radius_vector,
+        })
+    }
 }
 
 impl<'a> Hittable for MovingSphere<'a> {
@@ -102,6 +111,19 @@ impl<'a> Hittable for MovingSphere<'a> {
             }
         }
         Some(HitRecord::new(root, self, ray))
+    }
+
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+        let radius_vector = Vec3::new(self.radius, self.radius, self.radius);
+        let box0 = AABB {
+            minimum: self.center(time0) - radius_vector,
+            maximum: self.center(time0) + radius_vector,
+        };
+        let box1 = AABB {
+            minimum: self.center(time1) - radius_vector,
+            maximum: self.center(time1) + radius_vector,
+        };
+        Some(AABB::surrounding_box(box0, box1))
     }
 }
 
