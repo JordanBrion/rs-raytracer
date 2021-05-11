@@ -1,5 +1,6 @@
 extern crate num;
 
+mod aabb;
 mod angles;
 mod camera;
 mod constants;
