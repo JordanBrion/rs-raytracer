@@ -12,6 +12,23 @@ pub struct AABB {
 impl AABB {
     pub fn surrounding_box(aabb0: AABB, aabb1: AABB) -> AABB {
         AABB {
+            minimum: Vec3::new(
+                fmin(aabb0.minimum.x, aabb1.minimum.x),
+                fmin(aabb0.minimum.y, aabb1.minimum.y),
+                fmin(aabb0.minimum.z, aabb1.minimum.z),
+            ),
+            maximum: Vec3::new(
+                fmax(aabb0.maximum.x, aabb1.maximum.x),
+                fmax(aabb0.maximum.y, aabb1.maximum.y),
+                fmax(aabb0.maximum.z, aabb1.maximum.z),
+            ),
+        }
+    }
+}
+
+impl Default for AABB {
+    fn default() -> Self {
+        AABB {
             minimum: Default::default(),
             maximum: Default::default(),
         }
@@ -34,5 +51,12 @@ impl Hittable for AABB {
             }
         }
         Default::default()
+    }
+
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+        Some(AABB {
+            minimum: self.minimum,
+            maximum: self.maximum
+        })
     }
 }
