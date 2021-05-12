@@ -10,6 +10,8 @@ pub struct HitRecord<'a> {
     pub normal: Vec3,
     pub front_face: bool,
     pub material: &'a dyn Material,
+    pub u: f64,
+    pub v: f64,
 }
 
 impl<'a> HitRecord<'a> {
@@ -25,6 +27,8 @@ impl<'a> HitRecord<'a> {
             normal: normal,
             front_face: front_facing,
             material: sphere.material(),
+            u: Default::default(),
+            v: Default::default(),
         }
     }
 }

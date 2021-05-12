@@ -4,6 +4,7 @@ mod aabb;
 mod angles;
 mod bvh;
 mod camera;
+mod color;
 mod constants;
 mod hittable;
 mod material;
@@ -11,12 +12,14 @@ mod ppm;
 mod random;
 mod ray;
 mod sphere;
+mod texture;
 mod vec3;
 mod world;
 
 use bvh::*;
 use bvh::*;
 use camera::*;
+use color::*;
 use constants::*;
 use hittable::*;
 use material::*;
@@ -25,10 +28,6 @@ use random::*;
 use ray::*;
 use vec3::*;
 use world::*;
-
-fn color(x: f64, y: f64, z: f64) -> Vec3 {
-    Vec3::new(x, y, z)
-}
 
 fn ray_color(ray: &Ray, bvh_node: &BvhNode, depth: i32) -> Vec3 {
     if depth <= 0 {
@@ -47,7 +46,7 @@ fn ray_color(ray: &Ray, bvh_node: &BvhNode, depth: i32) -> Vec3 {
     } else {
         let unit_direction = ray.direction.unit_vector();
         let t = 0.5 * (unit_direction.y + 1.0);
-        (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
+        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 }
 
