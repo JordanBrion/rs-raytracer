@@ -46,12 +46,58 @@ impl<'a> World<'a> {
         [v_hittable_spheres, v_hittable_moving_spheres].concat()
     }
 
-    #[allow(dead_code)]
     pub fn new(materials: &'a Materials) -> World<'a> {
-        World {
-            v_spheres: Default::default(),
+        let mut world = World {
+            v_spheres: HittableList::from(vec![
+                Sphere::new(
+                    Vec3::new(0.0, -1000.0, 0.0),
+                    1000.0,
+                    &materials.v_lambertians[0],
+                ),
+                Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, &materials.v_dielectrics[0]),
+                Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, &materials.v_lambertians[1]),
+                Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, &materials.v_metals[0]),
+            ]),
             v_moving_spheres: Default::default(),
+        };
+        let start = 0;
+        let end = 22;
+        let bias = 11;
+        for a in start..end {
+            for b in start..end {
+                let choose_mat = random_double();
+                let center = Vec3::new(
+                    (a as i64 - bias) as f64 + 0.9 * random_double(),
+                    0.2,
+                    (b as i64 - bias) as f64 + 0.9 * random_double(),
+                );
+                if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                    if choose_mat < 0.8 {
+                        world.v_moving_spheres.0.push(MovingSphere::new(
+                            center,
+                            center + Vec3::new(0.0, random_double_in_limit(0.0, 0.5), 0.0),
+                            0.0,
+                            1.0,
+                            0.2,
+                            &materials.v_lambertians[a * end + b],
+                        ));
+                    } else if choose_mat < 0.95 {
+                        world.v_spheres.0.push(Sphere::new(
+                            center,
+                            0.2,
+                            &materials.v_metals[a * end + b],
+                        ));
+                    } else {
+                        world.v_spheres.0.push(Sphere::new(
+                            center,
+                            0.2,
+                            &materials.v_dielectrics[0],
+                        ));
+                    }
+                }
+            }
         }
+        world
     }
 }
 

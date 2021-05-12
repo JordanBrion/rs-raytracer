@@ -30,17 +30,17 @@ use texture::*;
 use vec3::*;
 use world::*;
 
-fn ray_color(ray: &Ray, bvh_node: &BvhNode, depth: i32) -> Vec3 {
+fn ray_color(ray: &Ray, hittable: &dyn Hittable, depth: i32) -> Vec3 {
     if depth <= 0 {
         Default::default()
-    } else if let Some(record) = bvh_node.hit(ray, 0.0001, INFINITY) {
+    } else if let Some(record) = hittable.hit(ray, 0.0001, INFINITY) {
         let mut scattered = Default::default();
         let mut attenuation = Default::default();
         if record
             .material
             .scatter(&ray, &record, &mut attenuation, &mut scattered)
         {
-            attenuation * ray_color(&scattered, bvh_node, depth - 1)
+            attenuation * ray_color(&scattered, hittable, depth - 1)
         } else {
             Default::default()
         }
@@ -82,7 +82,7 @@ fn main() {
     let textures = Textures::new();
     let materials = Materials::new(&textures);
     let world = World::new(&materials);
-    let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
+    // let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
     let samples = 10;
     let max_depth = 50;
 
@@ -93,7 +93,7 @@ fn main() {
                 let u = (i as f64 + random_double()) / ppm.width as f64;
                 let v = (j as f64 + random_double()) / ppm.height as f64;
                 let ray = camera.get_ray(u, v);
-                c += ray_color(&ray, &bvh_root, max_depth);
+                c += ray_color(&ray, &world, max_depth);
             }
             ppm.set_pixel(i, ppm.height - j, gamma_correction(c, samples));
         }

@@ -37,18 +37,32 @@ impl Metal {
 
 impl<'a> Materials<'a> {
     pub fn new(textures: &'a Textures) -> Materials<'a> {
-        Materials {
+        let mut materials = Materials {
             v_lambertians: vec![
                 Lambertian {
-                    albedo: &textures.solid_colors[0],
+                    albedo: &textures.v_checker_textures[0],
                 },
                 Lambertian {
-                    albedo: &textures.solid_colors[0],
+                    albedo: &textures.v_solid_colors[1],
                 },
             ],
-            v_metals: vec![Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)],
+            v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
             v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+        };
+        for _ in -11..11 {
+            for _ in -11..11 {
+                let random_textures_index =
+                    random_integer_in_limit(0, textures.v_solid_colors.len() - 1);
+                materials.v_lambertians.push(Lambertian {
+                    albedo: &textures.v_solid_colors[random_textures_index],
+                });
+                materials.v_metals.push(Metal::new(
+                    random_color_in_limit(0.5, 1.0),
+                    random_double_in_limit(0.0, 0.5),
+                ));
+            }
         }
+        materials
     }
 }
 
