@@ -82,7 +82,7 @@ impl<'a> Hittable for Sphere<'a> {
         return None;
     }
 
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
         let radius_vector = Vec3::new(self.radius, self.radius, self.radius);
         Some(AABB {
             minimum: self.center - radius_vector,

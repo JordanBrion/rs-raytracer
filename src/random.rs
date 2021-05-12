@@ -34,6 +34,12 @@ pub fn random_double_in_limit(min: f64, max: f64) -> f64 {
     min + (max - min) * random_double()
 }
 
+pub fn random_integer_in_limit(min: usize, max: usize) -> usize {
+    let f_min = min as f64;
+    let f_max = (max + 1) as f64;
+    (f_min + (f_max - f_min) * random_double()) as usize
+}
+
 pub fn random_in_unit_disk() -> Vec3 {
     loop {
         let p = 2.0 * Vec3::new(random_double(), random_double(), 0.0) - Vec3::new(1.0, 1.0, 0.0);

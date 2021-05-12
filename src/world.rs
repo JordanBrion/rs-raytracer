@@ -1,4 +1,5 @@
 use super::aabb::*;
+use super::bvh::*;
 use super::hittable::*;
 use super::material::*;
 use super::random::*;

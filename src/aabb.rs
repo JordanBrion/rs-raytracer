@@ -54,7 +54,7 @@ impl Hittable for AABB {
         Default::default()
     }
 
-    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
         Some(AABB {
             minimum: self.minimum,
             maximum: self.maximum,
