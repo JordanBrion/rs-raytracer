@@ -1,7 +1,9 @@
 use super::aabb::*;
+use super::constants::*;
 use super::hittable::*;
 use super::material::*;
 use super::ray::*;
+use super::uv::*;
 use super::vec3::*;
 
 pub struct Sphere<'a> {
@@ -129,12 +131,12 @@ impl<'a> Hittable for MovingSphere<'a> {
 
 pub trait NormalOp {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3);
+    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3;
 }
 
 impl<'a> NormalOp for Sphere<'a> {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
-        let hit_point = ray.point_at_parameter(t);
-        let outward_normal = (hit_point - self.center) / self.radius;
+        let outward_normal = self.outward_normal(ray, t);
         let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
         (
             front_face,
@@ -143,6 +145,11 @@ impl<'a> NormalOp for Sphere<'a> {
                 false => -outward_normal,
             },
         )
+    }
+
+    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
+        let hit_point = ray.point_at_parameter(t);
+        (hit_point - self.center) / self.radius
     }
 }
 
@@ -150,12 +157,15 @@ impl<'a> NormalOp for &Sphere<'a> {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
         (*self).normal(ray, t)
     }
+
+    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
+        (*self).outward_normal(ray, t)
+    }
 }
 
 impl<'a> NormalOp for MovingSphere<'a> {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
-        let hit_point = ray.point_at_parameter(t);
-        let outward_normal = (hit_point - self.center(ray.time)) / self.radius;
+        let outward_normal = self.outward_normal(ray, t);
         let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
         (
             front_face,
@@ -165,11 +175,19 @@ impl<'a> NormalOp for MovingSphere<'a> {
             },
         )
     }
+    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
+        let hit_point = ray.point_at_parameter(t);
+        (hit_point - self.center(ray.time)) / self.radius
+    }
 }
 
 impl<'a> NormalOp for &MovingSphere<'a> {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
         (*self).normal(ray, t)
+    }
+
+    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
+        (*self).outward_normal(ray, t)
     }
 }
 

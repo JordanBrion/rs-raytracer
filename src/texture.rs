@@ -1,15 +1,28 @@
 use super::color::*;
+use super::vec3::*;
 
-struct SolidColor {
-    color_value: Color,
+pub struct SolidColor {
+    pub color_value: Color,
 }
 
-trait Texture {
-    fn color(&self) -> Color;
+pub trait Texture {
+    fn value(&self, u: f64, v: f64, point: &Vec3) -> Color;
 }
 
 impl Texture for SolidColor {
-    fn color(&self) -> Color {
+    fn value(&self, u: f64, v: f64, point: &Vec3) -> Color {
         self.color_value
+    }
+}
+
+pub struct Textures {
+    pub solid_colors: Vec<SolidColor>,
+}
+
+impl Textures {
+    pub fn new() -> Textures {
+        Textures {
+            solid_colors: Default::default(),
+        }
     }
 }

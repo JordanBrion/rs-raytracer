@@ -13,10 +13,10 @@ mod random;
 mod ray;
 mod sphere;
 mod texture;
+mod uv;
 mod vec3;
 mod world;
 
-use bvh::*;
 use bvh::*;
 use camera::*;
 use color::*;
@@ -26,6 +26,7 @@ use material::*;
 use ppm::*;
 use random::*;
 use ray::*;
+use texture::*;
 use vec3::*;
 use world::*;
 
@@ -78,8 +79,9 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::new_random();
-    let world = World::new_random_with_moving_spheres(&materials);
+    let textures = Textures::new();
+    let materials = Materials::new(&textures);
+    let world = World::new(&materials);
     let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
     let samples = 10;
     let max_depth = 50;

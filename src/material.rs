@@ -3,11 +3,12 @@ extern crate libm;
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
+use super::texture::*;
 use super::vec3::*;
 use libm::*;
 
-pub struct Lambertian {
-    pub albedo: Vec3,
+pub struct Lambertian<'a> {
+    pub albedo: &'a dyn Texture,
 }
 
 pub struct Metal {
@@ -19,8 +20,8 @@ pub struct Dielectric {
     ref_idx: f64,
 }
 
-pub struct Materials {
-    pub v_lambertians: std::vec::Vec<Lambertian>,
+pub struct Materials<'a> {
+    pub v_lambertians: std::vec::Vec<Lambertian<'a>>,
     pub v_metals: std::vec::Vec<Metal>,
     pub v_dielectrics: std::vec::Vec<Dielectric>,
 }
@@ -34,48 +35,20 @@ impl Metal {
     }
 }
 
-impl Materials {
-    #[allow(dead_code)]
-    pub fn new() -> Materials {
+impl<'a> Materials<'a> {
+    pub fn new(textures: &'a Textures) -> Materials<'a> {
         Materials {
             v_lambertians: vec![
                 Lambertian {
-                    albedo: Vec3::new(0.1, 0.2, 0.5),
+                    albedo: &textures.solid_colors[0],
                 },
                 Lambertian {
-                    albedo: Vec3::new(0.8, 0.8, 0.0),
+                    albedo: &textures.solid_colors[0],
                 },
             ],
             v_metals: vec![Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)],
             v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
         }
-    }
-
-    pub fn new_random() -> Materials {
-        let mut materials = Materials {
-            v_lambertians: vec![
-                Lambertian {
-                    albedo: Vec3::new(0.5, 0.5, 0.5),
-                },
-                Lambertian {
-                    albedo: Vec3::new(0.4, 0.2, 0.1),
-                },
-            ],
-            v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
-        };
-        for _ in -11..11 {
-            for _ in -11..11 {
-                materials.v_lambertians.push(Lambertian {
-                    albedo: random_color() * random_color(),
-                });
-                materials.v_metals.push(Metal::new(
-                    random_color_in_limit(0.5, 1.0),
-                    random_double_in_limit(0.0, 0.5),
-                ));
-            }
-        }
-        materials
     }
 }
 
@@ -93,7 +66,7 @@ pub trait MaterialOp {
     fn material(&self) -> &dyn Material;
 }
 
-impl Material for Lambertian {
+impl<'a> Material for Lambertian<'a> {
     fn scatter(
         &self,
         ray_in: &Ray,
@@ -103,7 +76,7 @@ impl Material for Lambertian {
     ) -> bool {
         let scatter_direction = record.normal + random_in_unit_sphere();
         *scattered = Ray::new(record.p, scatter_direction, ray_in.time);
-        *attenuation = self.albedo;
+        *attenuation = self.albedo.value(record.u, record.v, &record.p);
         true
     }
 }

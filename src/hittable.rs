@@ -2,6 +2,7 @@ use super::aabb::*;
 use super::material::*;
 use super::ray::*;
 use super::sphere::*;
+use super::uv::*;
 use super::vec3::*;
 
 pub struct HitRecord<'a> {
@@ -20,6 +21,7 @@ impl<'a> HitRecord<'a> {
         T: NormalOp + MaterialOp,
     {
         let hit_point = ray.point_at_parameter(t);
+        let outward_normal = sphere.outward_normal(ray, t);
         let (front_facing, normal) = sphere.normal(ray, t);
         HitRecord {
             t: t,
@@ -27,8 +29,8 @@ impl<'a> HitRecord<'a> {
             normal: normal,
             front_face: front_facing,
             material: sphere.material(),
-            u: Default::default(),
-            v: Default::default(),
+            u: get_u(outward_normal),
+            v: get_v(outward_normal),
         }
     }
 }
