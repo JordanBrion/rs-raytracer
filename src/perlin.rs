@@ -28,9 +28,12 @@ impl Perlin {
         let u = p.x - p.x.floor();
         let v = p.y - p.y.floor();
         let w = p.z - p.z.floor();
-        let i = p.x.floor() as i64;
-        let j = p.y.floor() as i64;
-        let k = p.z.floor() as i64;
+        let uu = u * u * (3.0 - 2.0 * u);
+        let vv = v * v * (3.0 - 2.0 * v);
+        let ww = w * w * (3.0 - 2.0 * w);
+        let i = uu as i64;
+        let j = vv as i64;
+        let k = ww as i64;
         let mut c = Vec::with_capacity(8);
         let mask = 255;
         let max = 2;
@@ -45,7 +48,7 @@ impl Perlin {
                 }
             }
         }
-        Self::trilinear_interp(&c, u, v, w)
+        Self::trilinear_interp(&c, uu, vv, ww)
     }
 
     fn trilinear_interp(c: &[f64], u: f64, v: f64, w: f64) -> f64 {
