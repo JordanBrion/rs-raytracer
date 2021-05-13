@@ -1,7 +1,13 @@
+use crate::color;
+use image::{io::Reader as ImageReader, DynamicImage, GenericImageView, Pixel};
+use num::clamp;
+
 use super::color::*;
 use super::perlin::*;
 use super::random::*;
 use super::vec3::*;
+
+use std::cmp::*;
 
 pub struct SolidColor {
     pub color_value: Color,
@@ -22,6 +28,29 @@ impl NoiseTexture {
         NoiseTexture {
             noise: Perlin::new(),
             scale: scale,
+        }
+    }
+}
+
+pub struct ImageTexture {
+    data: Vec<u8>,
+    width: usize,
+    height: usize,
+    bytes_per_scanline: usize,
+}
+
+impl ImageTexture {
+    fn bytes_per_pixel() -> usize {
+        3
+    }
+
+    pub fn new(filename: &str) -> ImageTexture {
+        let img = ImageReader::open(filename).unwrap().decode().unwrap();
+        ImageTexture {
+            data: img.to_bytes(),
+            width: img.dimensions().0 as usize,
+            height: img.dimensions().1 as usize,
+            bytes_per_scanline: Self::bytes_per_pixel() * (img.dimensions().0 as usize),
         }
     }
 }
@@ -56,10 +85,27 @@ impl Texture for NoiseTexture {
     }
 }
 
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, _point: &Vec3) -> Color {
+        let uu = clamp(u, 0.0, 1.0);
+        let vv = 1.0 - clamp(v, 0.0, 1.0);
+        let col_index = min((uu * self.width as f64) as usize, self.width - 1);
+        let row_index = min((vv * self.height as f64) as usize, self.height - 1);
+        let pixel_index =
+            (self.bytes_per_scanline * row_index) + (col_index * Self::bytes_per_pixel());
+        let color_scale = 1.0 / 255.0;
+        Color::new(
+            color_scale * self.data[pixel_index] as f64,
+            color_scale * self.data[pixel_index + 1] as f64,
+            color_scale * self.data[pixel_index + 2] as f64,
+        )
+    }
+}
 pub struct Textures {
     pub v_solid_colors: Vec<SolidColor>,
     pub v_checker_textures: Vec<CheckerTexture>,
     pub v_noise_textures: Vec<NoiseTexture>,
+    pub v_image_textures: Vec<ImageTexture>,
 }
 
 impl<'a> Textures {
@@ -82,6 +128,7 @@ impl<'a> Textures {
                 },
             }],
             v_noise_textures: vec![NoiseTexture::new(4.0)],
+            v_image_textures: vec![ImageTexture::new("./earthmap.jpeg")],
         };
         for _ in -11..11 {
             textures.v_solid_colors.push(SolidColor {
