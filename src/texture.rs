@@ -14,12 +14,14 @@ pub struct CheckerTexture {
 
 pub struct NoiseTexture {
     noise: Perlin,
+    scale: f64,
 }
 
 impl NoiseTexture {
-    pub fn new() -> NoiseTexture {
+    pub fn new(scale: f64) -> NoiseTexture {
         NoiseTexture {
             noise: Perlin::new(),
+            scale: scale,
         }
     }
 }
@@ -48,7 +50,8 @@ impl Texture for CheckerTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, _u: f64, _v: f64, point: &Vec3) -> Color {
-        Color::new(1.0, 1.0, 1.0) * self.noise.noise(point)
+        let scaled_p = self.scale * *point;
+        Color::new(1.0, 1.0, 1.0) * self.noise.noise(&scaled_p)
     }
 }
 
@@ -77,7 +80,7 @@ impl<'a> Textures {
                     color_value: Vec3::new(0.9, 0.9, 0.9),
                 },
             }],
-            v_noise_textures: vec![NoiseTexture::new()],
+            v_noise_textures: vec![NoiseTexture::new(4.0)],
         };
         for _ in -11..11 {
             textures.v_solid_colors.push(SolidColor {
