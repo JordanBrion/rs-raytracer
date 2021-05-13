@@ -51,7 +51,7 @@ impl Texture for CheckerTexture {
 impl Texture for NoiseTexture {
     fn value(&self, _u: f64, _v: f64, point: &Vec3) -> Color {
         let scaled_p = self.scale * *point;
-        Color::new(1.0, 1.0, 1.0) * self.noise.noise(&scaled_p)
+        Color::new(1.0, 1.0, 1.0) * 0.5 * (1.0 + self.noise.noise(&scaled_p))
     }
 }
 
