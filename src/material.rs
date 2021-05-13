@@ -40,7 +40,7 @@ impl<'a> Materials<'a> {
         let mut materials = Materials {
             v_lambertians: vec![
                 Lambertian {
-                    albedo: &textures.v_checker_textures[0],
+                    albedo: &textures.v_noise_textures[0],
                 },
                 Lambertian {
                     albedo: &textures.v_solid_colors[1],

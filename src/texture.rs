@@ -1,4 +1,5 @@
 use super::color::*;
+use super::perlin::*;
 use super::random::*;
 use super::vec3::*;
 
@@ -9,6 +10,18 @@ pub struct SolidColor {
 pub struct CheckerTexture {
     odd: SolidColor,
     even: SolidColor,
+}
+
+pub struct NoiseTexture {
+    noise: Perlin,
+}
+
+impl NoiseTexture {
+    pub fn new() -> NoiseTexture {
+        NoiseTexture {
+            noise: Perlin::new(),
+        }
+    }
 }
 
 pub trait Texture {
@@ -33,9 +46,16 @@ impl Texture for CheckerTexture {
     }
 }
 
+impl Texture for NoiseTexture {
+    fn value(&self, _u: f64, _v: f64, point: &Vec3) -> Color {
+        Color::new(1.0, 1.0, 1.0) * self.noise.noise(point)
+    }
+}
+
 pub struct Textures {
     pub v_solid_colors: Vec<SolidColor>,
     pub v_checker_textures: Vec<CheckerTexture>,
+    pub v_noise_textures: Vec<NoiseTexture>,
 }
 
 impl<'a> Textures {
@@ -57,6 +77,7 @@ impl<'a> Textures {
                     color_value: Vec3::new(0.9, 0.9, 0.9),
                 },
             }],
+            v_noise_textures: vec![NoiseTexture::new()],
         };
         for _ in -11..11 {
             textures.v_solid_colors.push(SolidColor {

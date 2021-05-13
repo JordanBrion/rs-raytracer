@@ -8,6 +8,7 @@ mod color;
 mod constants;
 mod hittable;
 mod material;
+mod perlin;
 mod ppm;
 mod random;
 mod ray;
@@ -64,7 +65,7 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 }
 
 fn main() {
-    let mut ppm = PPM::new(100, 200);
+    let mut ppm = PPM::new(200, 400);
     let look_from = Vec3::new(13.0, 2.0, 3.0);
     let look_at = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = 10.0;
@@ -81,7 +82,7 @@ fn main() {
     );
     let textures = Textures::new();
     let materials = Materials::new(&textures);
-    let world = World::new_two_spheres(&materials);
+    let world = World::new_two_perlin_spheres(&materials);
     // let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
     let samples = 10;
     let max_depth = 50;
