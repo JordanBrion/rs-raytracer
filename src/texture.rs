@@ -21,7 +21,7 @@ impl Texture for SolidColor {
     }
 }
 
-impl<'a> Texture for CheckerTexture {
+impl Texture for CheckerTexture {
     fn value(&self, u: f64, v: f64, point: &Vec3) -> Color {
         let factor = 10.0;
         let sines = (factor * point.x).sin() * (factor * point.y).sin() * (factor * point.z).sin();
