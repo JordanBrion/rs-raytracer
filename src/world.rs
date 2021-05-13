@@ -99,6 +99,20 @@ impl<'a> World<'a> {
         }
         world
     }
+
+    pub fn new_two_spheres(materials: &'a Materials) -> World<'a> {
+        World {
+            v_spheres: HittableList::from(vec![
+                Sphere::new(
+                    Vec3::new(0.0, -10.0, 0.0),
+                    10.0,
+                    &materials.v_lambertians[0],
+                ),
+                Sphere::new(Vec3::new(0.0, 10.0, 0.0), 10.0, &materials.v_lambertians[0]),
+            ]),
+            v_moving_spheres: Default::default(),
+        }
+    }
 }
 
 impl<'a> Hittable for World<'a> {

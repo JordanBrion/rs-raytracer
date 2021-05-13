@@ -74,14 +74,14 @@ fn main() {
         Vec3::new(0.0, 1.0, 0.0),
         20.0,
         ppm.width as f64 / ppm.height as f64,
-        0.1,
+        0.0,
         dist_to_focus,
         0.0,
         1.0,
     );
     let textures = Textures::new();
     let materials = Materials::new(&textures);
-    let world = World::new(&materials);
+    let world = World::new_two_spheres(&materials);
     // let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
     let samples = 10;
     let max_depth = 50;
