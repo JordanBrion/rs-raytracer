@@ -29,6 +29,7 @@ pub struct Materials<'a> {
     pub v_lambertians: std::vec::Vec<Lambertian<'a>>,
     pub v_metals: std::vec::Vec<Metal>,
     pub v_dielectrics: std::vec::Vec<Dielectric>,
+    pub v_diffuse_lights: std::vec::Vec<DiffuseLight<'a>>,
 }
 
 impl Metal {
@@ -45,7 +46,7 @@ impl<'a> Materials<'a> {
         let mut materials = Materials {
             v_lambertians: vec![
                 Lambertian {
-                    albedo: &textures.v_image_textures[0],
+                    albedo: &textures.v_noise_textures[0],
                 },
                 Lambertian {
                     albedo: &textures.v_solid_colors[1],
@@ -53,6 +54,9 @@ impl<'a> Materials<'a> {
             ],
             v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
             v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_diffuse_lights: vec![DiffuseLight {
+                emit: &textures.v_solid_colors[2],
+            }],
         };
         for _ in -11..11 {
             for _ in -11..11 {

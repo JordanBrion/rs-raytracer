@@ -8,13 +8,13 @@ use super::ray::*;
 use super::uv::*;
 use super::vec3::*;
 
-struct XyRect<'a> {
-    mp: &'a dyn Material,
-    x0: f64,
-    x1: f64,
-    y0: f64,
-    y1: f64,
-    k: f64,
+pub struct XyRect<'a> {
+    pub mp: &'a dyn Material,
+    pub x0: f64,
+    pub x1: f64,
+    pub y0: f64,
+    pub y1: f64,
+    pub k: f64,
 }
 
 impl<'a> Hittable for XyRect<'a> {

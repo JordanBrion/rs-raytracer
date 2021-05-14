@@ -118,6 +118,9 @@ impl<'a> Textures {
                 SolidColor {
                     color_value: Vec3::new(0.4, 0.2, 0.1),
                 },
+                SolidColor {
+                    color_value: Vec3::new(4.0, 4.0, 4.0),
+                },
             ],
             v_checker_textures: vec![CheckerTexture {
                 even: SolidColor {

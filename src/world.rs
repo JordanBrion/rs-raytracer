@@ -4,6 +4,7 @@ use super::hittable::*;
 use super::material::*;
 use super::random::*;
 use super::ray::*;
+use super::rectangle::*;
 use super::sphere::*;
 use super::vec3::*;
 
@@ -27,6 +28,7 @@ where
 pub struct World<'a> {
     v_spheres: HittableList<Sphere<'a>>,
     v_moving_spheres: HittableList<MovingSphere<'a>>,
+    v_xy_rects: HittableList<XyRect<'a>>,
 }
 
 impl<'a> World<'a> {
@@ -43,9 +45,21 @@ impl<'a> World<'a> {
             .iter()
             .map(|moving_sphere| moving_sphere as &dyn Hittable)
             .collect();
-        [v_hittable_spheres, v_hittable_moving_spheres].concat()
+        let v_hittable_xy_rects: Vec<&dyn Hittable> = self
+            .v_xy_rects
+            .0
+            .iter()
+            .map(|rectangle| rectangle as &dyn Hittable)
+            .collect();
+        [
+            v_hittable_spheres,
+            v_hittable_moving_spheres,
+            v_hittable_xy_rects,
+        ]
+        .concat()
     }
 
+    #[allow(dead_code)]
     pub fn new(materials: &'a Materials) -> World<'a> {
         let mut world = World {
             v_spheres: HittableList::from(vec![
@@ -59,6 +73,7 @@ impl<'a> World<'a> {
                 Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, &materials.v_metals[0]),
             ]),
             v_moving_spheres: Default::default(),
+            v_xy_rects: Default::default(),
         };
         let start = 0;
         let end = 22;
@@ -100,6 +115,7 @@ impl<'a> World<'a> {
         world
     }
 
+    #[allow(dead_code)]
     pub fn new_two_spheres(materials: &'a Materials) -> World<'a> {
         World {
             v_spheres: HittableList::from(vec![
@@ -111,9 +127,11 @@ impl<'a> World<'a> {
                 Sphere::new(Vec3::new(0.0, 10.0, 0.0), 10.0, &materials.v_lambertians[0]),
             ]),
             v_moving_spheres: Default::default(),
+            v_xy_rects: Default::default(),
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_two_perlin_spheres(materials: &'a Materials) -> World<'a> {
         World {
             v_spheres: HittableList::from(vec![
@@ -125,6 +143,29 @@ impl<'a> World<'a> {
                 Sphere::new(Vec3::new(0.0, 2.0, 0.0), 2.0, &materials.v_lambertians[0]),
             ]),
             v_moving_spheres: Default::default(),
+            v_xy_rects: Default::default(),
+        }
+    }
+
+    pub fn new_simple_light(materials: &'a Materials) -> World<'a> {
+        World {
+            v_spheres: HittableList::from(vec![
+                Sphere::new(
+                    Vec3::new(0.0, -1000.0, 0.0),
+                    1000.0,
+                    &materials.v_lambertians[0],
+                ),
+                Sphere::new(Vec3::new(0.0, 2.0, 0.0), 2.0, &materials.v_lambertians[0]),
+            ]),
+            v_moving_spheres: Default::default(),
+            v_xy_rects: HittableList::from(vec![XyRect {
+                mp: &materials.v_diffuse_lights[0],
+                x0: 3.0,
+                x1: 5.0,
+                y0: 1.0,
+                y1: 3.0,
+                k: -2.0,
+            }]),
         }
     }
 }
