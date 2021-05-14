@@ -113,31 +113,22 @@ impl<'a> Textures {
         let mut textures = Textures {
             v_solid_colors: vec![
                 SolidColor {
-                    color_value: Vec3::new(0.5, 0.5, 0.5),
+                    color_value: Vec3::new(0.65, 0.05, 0.05),
                 },
                 SolidColor {
-                    color_value: Vec3::new(0.4, 0.2, 0.1),
+                    color_value: Vec3::new(0.73, 0.73, 0.73),
                 },
                 SolidColor {
-                    color_value: Vec3::new(4.0, 4.0, 4.0),
+                    color_value: Vec3::new(0.12, 0.45, 0.15),
+                },
+                SolidColor {
+                    color_value: Vec3::new(15.0, 15.0, 15.0),
                 },
             ],
-            v_checker_textures: vec![CheckerTexture {
-                even: SolidColor {
-                    color_value: Vec3::new(0.2, 0.3, 0.1),
-                },
-                odd: SolidColor {
-                    color_value: Vec3::new(0.9, 0.9, 0.9),
-                },
-            }],
-            v_noise_textures: vec![NoiseTexture::new(4.0)],
-            v_image_textures: vec![ImageTexture::new("./earthmap.jpeg")],
+            v_checker_textures: Default::default(),
+            v_noise_textures: Default::default(),
+            v_image_textures: Default::default(),
         };
-        for _ in -11..11 {
-            textures.v_solid_colors.push(SolidColor {
-                color_value: random_color() * random_color(),
-            })
-        }
         textures
     }
 }

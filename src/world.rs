@@ -29,6 +29,8 @@ pub struct World<'a> {
     v_spheres: HittableList<Sphere<'a>>,
     v_moving_spheres: HittableList<MovingSphere<'a>>,
     v_xy_rects: HittableList<XyRect<'a>>,
+    v_xz_rects: HittableList<XzRect<'a>>,
+    v_yz_rects: HittableList<YzRect<'a>>,
 }
 
 impl<'a> World<'a> {
@@ -51,121 +53,85 @@ impl<'a> World<'a> {
             .iter()
             .map(|rectangle| rectangle as &dyn Hittable)
             .collect();
+        let v_hittable_xz_rects: Vec<&dyn Hittable> = self
+            .v_xz_rects
+            .0
+            .iter()
+            .map(|rectangle| rectangle as &dyn Hittable)
+            .collect();
+        let v_hittable_yz_rects: Vec<&dyn Hittable> = self
+            .v_yz_rects
+            .0
+            .iter()
+            .map(|rectangle| rectangle as &dyn Hittable)
+            .collect();
+
         [
             v_hittable_spheres,
             v_hittable_moving_spheres,
             v_hittable_xy_rects,
+            v_hittable_xz_rects,
+            v_hittable_yz_rects,
         ]
         .concat()
     }
 
-    #[allow(dead_code)]
-    pub fn new(materials: &'a Materials) -> World<'a> {
-        let mut world = World {
-            v_spheres: HittableList::from(vec![
-                Sphere::new(
-                    Vec3::new(0.0, -1000.0, 0.0),
-                    1000.0,
-                    &materials.v_lambertians[0],
-                ),
-                Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, &materials.v_dielectrics[0]),
-                Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, &materials.v_lambertians[1]),
-                Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, &materials.v_metals[0]),
-            ]),
-            v_moving_spheres: Default::default(),
-            v_xy_rects: Default::default(),
-        };
-        let start = 0;
-        let end = 22;
-        let bias = 11;
-        for a in start..end {
-            for b in start..end {
-                let choose_mat = random_double();
-                let center = Vec3::new(
-                    (a as i64 - bias) as f64 + 0.9 * random_double(),
-                    0.2,
-                    (b as i64 - bias) as f64 + 0.9 * random_double(),
-                );
-                if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                    if choose_mat < 0.8 {
-                        world.v_moving_spheres.0.push(MovingSphere::new(
-                            center,
-                            center + Vec3::new(0.0, random_double_in_limit(0.0, 0.5), 0.0),
-                            0.0,
-                            1.0,
-                            0.2,
-                            &materials.v_lambertians[a * end + b],
-                        ));
-                    } else if choose_mat < 0.95 {
-                        world.v_spheres.0.push(Sphere::new(
-                            center,
-                            0.2,
-                            &materials.v_metals[a * end + b],
-                        ));
-                    } else {
-                        world.v_spheres.0.push(Sphere::new(
-                            center,
-                            0.2,
-                            &materials.v_dielectrics[0],
-                        ));
-                    }
-                }
-            }
-        }
-        world
-    }
-
-    #[allow(dead_code)]
-    pub fn new_two_spheres(materials: &'a Materials) -> World<'a> {
+    pub fn new_empty_cornell_box(materials: &'a Materials) -> World<'a> {
         World {
-            v_spheres: HittableList::from(vec![
-                Sphere::new(
-                    Vec3::new(0.0, -10.0, 0.0),
-                    10.0,
-                    &materials.v_lambertians[0],
-                ),
-                Sphere::new(Vec3::new(0.0, 10.0, 0.0), 10.0, &materials.v_lambertians[0]),
-            ]),
-            v_moving_spheres: Default::default(),
-            v_xy_rects: Default::default(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_two_perlin_spheres(materials: &'a Materials) -> World<'a> {
-        World {
-            v_spheres: HittableList::from(vec![
-                Sphere::new(
-                    Vec3::new(0.0, -1000.0, 0.0),
-                    1000.0,
-                    &materials.v_lambertians[0],
-                ),
-                Sphere::new(Vec3::new(0.0, 2.0, 0.0), 2.0, &materials.v_lambertians[0]),
-            ]),
-            v_moving_spheres: Default::default(),
-            v_xy_rects: Default::default(),
-        }
-    }
-
-    pub fn new_simple_light(materials: &'a Materials) -> World<'a> {
-        World {
-            v_spheres: HittableList::from(vec![
-                Sphere::new(
-                    Vec3::new(0.0, -1000.0, 0.0),
-                    1000.0,
-                    &materials.v_lambertians[0],
-                ),
-                Sphere::new(Vec3::new(0.0, 2.0, 0.0), 2.0, &materials.v_lambertians[0]),
-            ]),
+            v_spheres: Default::default(),
             v_moving_spheres: Default::default(),
             v_xy_rects: HittableList::from(vec![XyRect {
-                mp: &materials.v_diffuse_lights[0],
-                x0: 3.0,
-                x1: 5.0,
-                y0: 1.0,
-                y1: 3.0,
-                k: -2.0,
+                mp: &materials.v_lambertians[1],
+                x0: 0.0,
+                x1: 555.0,
+                y0: 0.0,
+                y1: 555.0,
+                k: 555.0,
             }]),
+            v_xz_rects: HittableList::from(vec![
+                XzRect {
+                    mp: &materials.v_diffuse_lights[0],
+                    x0: 213.0,
+                    x1: 343.0,
+                    z0: 227.0,
+                    z1: 332.0,
+                    k: 554.0,
+                },
+                XzRect {
+                    mp: &materials.v_lambertians[1],
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                },
+                XzRect {
+                    mp: &materials.v_lambertians[1],
+                    x0: 0.0,
+                    x1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                },
+            ]),
+            v_yz_rects: HittableList::from(vec![
+                YzRect {
+                    mp: &materials.v_lambertians[2],
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 555.0,
+                },
+                YzRect {
+                    mp: &materials.v_lambertians[0],
+                    y0: 0.0,
+                    y1: 555.0,
+                    z0: 0.0,
+                    z1: 555.0,
+                    k: 0.0,
+                },
+            ]),
         }
     }
 }

@@ -46,16 +46,19 @@ impl<'a> Materials<'a> {
         let mut materials = Materials {
             v_lambertians: vec![
                 Lambertian {
-                    albedo: &textures.v_noise_textures[0],
+                    albedo: &textures.v_solid_colors[0],
                 },
                 Lambertian {
                     albedo: &textures.v_solid_colors[1],
                 },
+                Lambertian {
+                    albedo: &textures.v_solid_colors[2],
+                },
             ],
-            v_metals: vec![Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)],
-            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_metals: Default::default(),
+            v_dielectrics: Default::default(),
             v_diffuse_lights: vec![DiffuseLight {
-                emit: &textures.v_solid_colors[2],
+                emit: &textures.v_solid_colors[3],
             }],
         };
         for _ in -11..11 {
