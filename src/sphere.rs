@@ -2,6 +2,7 @@ use super::aabb::*;
 use super::constants::*;
 use super::hittable::*;
 use super::material::*;
+use super::normal::*;
 use super::ray::*;
 use super::uv::*;
 use super::vec3::*;
@@ -129,11 +130,6 @@ impl<'a> Hittable for MovingSphere<'a> {
     }
 }
 
-pub trait NormalOp {
-    fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3);
-    fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3;
-}
-
 impl<'a> NormalOp for Sphere<'a> {
     fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
         let outward_normal = self.outward_normal(ray, t);
@@ -212,5 +208,23 @@ impl<'a> MaterialOp for MovingSphere<'a> {
 impl<'a> MaterialOp for &MovingSphere<'a> {
     fn material(&self) -> &dyn Material {
         (*self).material()
+    }
+}
+
+impl<'a> UvOp for Sphere<'a> {
+    fn get_u(&self, p: Vec3) -> f64 {
+        get_sphere_u(p)
+    }
+    fn get_v(&self, p: Vec3) -> f64 {
+        get_sphere_v(p)
+    }
+}
+
+impl<'a> UvOp for MovingSphere<'a> {
+    fn get_u(&self, p: Vec3) -> f64 {
+        get_sphere_u(p)
+    }
+    fn get_v(&self, p: Vec3) -> f64 {
+        get_sphere_v(p)
     }
 }

@@ -1,7 +1,7 @@
 use super::aabb::*;
 use super::material::*;
+use super::normal::*;
 use super::ray::*;
-use super::sphere::*;
 use super::uv::*;
 use super::vec3::*;
 
@@ -16,21 +16,21 @@ pub struct HitRecord<'a> {
 }
 
 impl<'a> HitRecord<'a> {
-    pub fn new<T>(t: f64, sphere: &'a T, ray: &Ray) -> HitRecord<'a>
+    pub fn new<T>(t: f64, entity: &'a T, ray: &Ray) -> HitRecord<'a>
     where
-        T: NormalOp + MaterialOp,
+        T: NormalOp + MaterialOp + UvOp,
     {
         let hit_point = ray.point_at_parameter(t);
-        let outward_normal = sphere.outward_normal(ray, t);
-        let (front_facing, normal) = sphere.normal(ray, t);
+        let outward_normal = entity.outward_normal(ray, t);
+        let (front_facing, normal) = entity.normal(ray, t);
         HitRecord {
             t: t,
             p: hit_point,
             normal: normal,
             front_face: front_facing,
-            material: sphere.material(),
-            u: get_u(outward_normal),
-            v: get_v(outward_normal),
+            material: entity.material(),
+            u: entity.get_u(outward_normal),
+            v: entity.get_v(outward_normal),
         }
     }
 }
