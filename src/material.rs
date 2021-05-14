@@ -79,7 +79,7 @@ pub trait Material {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool;
-    fn emitted(&self, u: f64, v:f64, point: &Vec3) -> Color {
+    fn emitted(&self, u: f64, v: f64, point: &Vec3) -> Color {
         Color::new(0.0, 0.0, 0.0)
     }
 }
@@ -171,7 +171,7 @@ impl<'a> Material for DiffuseLight<'a> {
     ) -> bool {
         false
     }
-    fn emitted(&self, u: f64, v:f64, point: &Vec3) -> Color {
+    fn emitted(&self, u: f64, v: f64, point: &Vec3) -> Color {
         self.emit.value(u, v, point)
     }
 }
