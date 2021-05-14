@@ -1,5 +1,6 @@
 extern crate libm;
 
+use super::color::*;
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
@@ -18,6 +19,10 @@ pub struct Metal {
 
 pub struct Dielectric {
     ref_idx: f64,
+}
+
+pub struct DiffuseLight<'a> {
+    emit: &'a dyn Texture,
 }
 
 pub struct Materials<'a> {
@@ -74,6 +79,9 @@ pub trait Material {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool;
+    fn emitted(&self, u: f64, v:f64, point: &Vec3) -> Color {
+        Color::new(0.0, 0.0, 0.0)
+    }
 }
 
 pub trait MaterialOp {
@@ -150,5 +158,20 @@ impl Material for Dielectric {
             *scattered = Ray::new(record.p, refracted, ray_in.time);
         }
         true
+    }
+}
+
+impl<'a> Material for DiffuseLight<'a> {
+    fn scatter(
+        &self,
+        _ray_in: &Ray,
+        _record: &HitRecord,
+        _attenuation: &mut Vec3,
+        _scattered: &mut Ray,
+    ) -> bool {
+        false
+    }
+    fn emitted(&self, u: f64, v:f64, point: &Vec3) -> Color {
+        self.emit.value(u, v, point)
     }
 }
