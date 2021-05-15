@@ -1,5 +1,6 @@
 use super::aabb::*;
 use super::bvh::*;
+use super::cube::*;
 use super::hittable::*;
 use super::material::*;
 use super::random::*;
@@ -31,6 +32,7 @@ pub struct World<'a> {
     v_xy_rects: HittableList<XyRect<'a>>,
     v_xz_rects: HittableList<XzRect<'a>>,
     v_yz_rects: HittableList<YzRect<'a>>,
+    v_cubes: HittableList<Cube<'a>>,
 }
 
 impl<'a> World<'a> {
@@ -65,6 +67,12 @@ impl<'a> World<'a> {
             .iter()
             .map(|rectangle| rectangle as &dyn Hittable)
             .collect();
+        let v_hittable_cubes: Vec<&dyn Hittable> = self
+            .v_cubes
+            .0
+            .iter()
+            .map(|cube| cube as &dyn Hittable)
+            .collect();
 
         [
             v_hittable_spheres,
@@ -72,11 +80,12 @@ impl<'a> World<'a> {
             v_hittable_xy_rects,
             v_hittable_xz_rects,
             v_hittable_yz_rects,
+            v_hittable_cubes,
         ]
         .concat()
     }
 
-    pub fn new_empty_cornell_box(materials: &'a Materials) -> World<'a> {
+    pub fn new_cornell_box(materials: &'a Materials) -> World<'a> {
         World {
             v_spheres: Default::default(),
             v_moving_spheres: Default::default(),
@@ -131,6 +140,18 @@ impl<'a> World<'a> {
                     z1: 555.0,
                     k: 0.0,
                 },
+            ]),
+            v_cubes: HittableList(vec![
+                Cube::new(
+                    Vec3::new(130.0, 0.0, 65.0),
+                    Vec3::new(295.0, 165.0, 230.0),
+                    &materials.v_lambertians[1],
+                ),
+                Cube::new(
+                    Vec3::new(265.0, 0.0, 295.0),
+                    Vec3::new(430.0, 330.0, 460.0),
+                    &materials.v_lambertians[1],
+                ),
             ]),
         }
     }

@@ -6,6 +6,7 @@ mod bvh;
 mod camera;
 mod color;
 mod constants;
+mod cube;
 mod hittable;
 mod material;
 mod normal;
@@ -83,7 +84,7 @@ fn main() {
     );
     let textures = Textures::new();
     let materials = Materials::new(&textures);
-    let world = World::new_empty_cornell_box(&materials);
+    let world = World::new_cornell_box(&materials);
     // let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
     let samples = 200;
     let max_depth = 50;
