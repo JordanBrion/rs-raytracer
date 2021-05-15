@@ -17,6 +17,7 @@ mod ray;
 mod rectangle;
 mod sphere;
 mod texture;
+mod transform;
 mod uv;
 mod vec3;
 mod world;
