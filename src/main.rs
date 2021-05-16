@@ -20,6 +20,7 @@ mod texture;
 mod transform;
 mod uv;
 mod vec3;
+mod volume;
 mod world;
 
 use bvh::*;

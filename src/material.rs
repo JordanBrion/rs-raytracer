@@ -25,6 +25,10 @@ pub struct DiffuseLight<'a> {
     emit: &'a dyn Texture,
 }
 
+struct Isotropic<'a> {
+    albedo: &'a dyn Texture,
+}
+
 pub struct Materials<'a> {
     pub v_lambertians: std::vec::Vec<Lambertian<'a>>,
     pub v_metals: std::vec::Vec<Metal>,
@@ -180,5 +184,19 @@ impl<'a> Material for DiffuseLight<'a> {
     }
     fn emitted(&self, u: f64, v: f64, point: &Vec3) -> Color {
         self.emit.value(u, v, point)
+    }
+}
+
+impl<'a> Material for Isotropic<'a> {
+    fn scatter(
+        &self,
+        ray_in: &Ray,
+        record: &HitRecord,
+        attenuation: &mut Vec3,
+        scattered: &mut Ray,
+    ) -> bool {
+        *scattered = Ray::new(record.p, random_in_unit_sphere(), ray_in.time);
+        *attenuation = self.albedo.value(record.u, record.v, &record.p);
+        return true;
     }
 }
