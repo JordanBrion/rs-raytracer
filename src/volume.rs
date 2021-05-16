@@ -8,14 +8,18 @@ use super::hittable::*;
 use super::material::*;
 use super::ray::*;
 
-struct ConstantMedium<'a> {
-    boundary: Box<dyn Hittable>,
+pub struct ConstantMedium<'a> {
+    boundary: Box<dyn Hittable + 'a>,
     phase_function: &'a dyn Material,
     neg_inv_density: f64,
 }
 
 impl<'a> ConstantMedium<'a> {
-    pub fn new(b: Box<dyn Hittable>, d: f64, material: &dyn Material) -> ConstantMedium {
+    pub fn new(
+        b: Box<dyn Hittable + 'a>,
+        d: f64,
+        material: &'a dyn Material,
+    ) -> ConstantMedium<'a> {
         ConstantMedium {
             boundary: b,
             neg_inv_density: -1.0 / d,

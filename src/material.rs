@@ -25,7 +25,7 @@ pub struct DiffuseLight<'a> {
     emit: &'a dyn Texture,
 }
 
-struct Isotropic<'a> {
+pub struct Isotropic<'a> {
     albedo: &'a dyn Texture,
 }
 
@@ -33,6 +33,7 @@ pub struct Materials<'a> {
     pub v_lambertians: std::vec::Vec<Lambertian<'a>>,
     pub v_metals: std::vec::Vec<Metal>,
     pub v_dielectrics: std::vec::Vec<Dielectric>,
+    pub v_isotropics: std::vec::Vec<Isotropic<'a>>,
     pub v_diffuse_lights: std::vec::Vec<DiffuseLight<'a>>,
 }
 
@@ -64,6 +65,14 @@ impl<'a> Materials<'a> {
             v_diffuse_lights: vec![DiffuseLight {
                 emit: &textures.v_solid_colors[3],
             }],
+            v_isotropics: vec![
+                Isotropic {
+                    albedo: &textures.v_solid_colors[4],
+                },
+                Isotropic {
+                    albedo: &textures.v_solid_colors[5],
+                },
+            ],
         };
         for _ in -11..11 {
             for _ in -11..11 {

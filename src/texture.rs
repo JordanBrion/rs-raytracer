@@ -122,7 +122,13 @@ impl<'a> Textures {
                     color_value: Vec3::new(0.12, 0.45, 0.15),
                 },
                 SolidColor {
-                    color_value: Vec3::new(15.0, 15.0, 15.0),
+                    color_value: Vec3::new(7.0, 7.0, 7.0),
+                },
+                SolidColor {
+                    color_value: Vec3::new(0.0, 0.0, 0.0),
+                },
+                SolidColor {
+                    color_value: Vec3::new(1.0, 1.0, 1.0),
                 },
             ],
             v_checker_textures: Default::default(),

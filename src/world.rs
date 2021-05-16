@@ -9,6 +9,7 @@ use super::rectangle::*;
 use super::sphere::*;
 use super::transform::*;
 use super::vec3::*;
+use super::volume::*;
 
 pub struct World<'a> {
     v_hittables: Vec<Box<dyn Hittable + 'a>>,
@@ -26,6 +27,11 @@ impl<'a> World<'a> {
             offset: Vec3::new(265.0, 0.0, 295.0),
             ptr: rotation_1,
         });
+        let constant_medium_1 = Box::new(ConstantMedium::new(
+            translation_1,
+            0.01,
+            &materials.v_isotropics[0],
+        ));
         let cube_2 = Box::new(Cube::new(
             Vec3::new(0.0, 0.0, 0.0),
             Vec3::new(165.0, 165.0, 165.0),
@@ -36,6 +42,11 @@ impl<'a> World<'a> {
             offset: Vec3::new(130.0, 0.0, 65.0),
             ptr: rotation_2,
         });
+        let constant_medium_2 = Box::new(ConstantMedium::new(
+            translation_2,
+            0.01,
+            &materials.v_isotropics[1],
+        ));
         World {
             v_hittables: vec![
                 Box::new(XyRect {
@@ -48,10 +59,10 @@ impl<'a> World<'a> {
                 }),
                 Box::new(XzRect {
                     mp: &materials.v_diffuse_lights[0],
-                    x0: 213.0,
-                    x1: 343.0,
-                    z0: 227.0,
-                    z1: 332.0,
+                    x0: 113.0,
+                    x1: 443.0,
+                    z0: 127.0,
+                    z1: 432.0,
                     k: 554.0,
                 }),
                 Box::new(XzRect {
@@ -60,7 +71,7 @@ impl<'a> World<'a> {
                     x1: 555.0,
                     z0: 0.0,
                     z1: 555.0,
-                    k: 0.0,
+                    k: 555.0,
                 }),
                 Box::new(XzRect {
                     mp: &materials.v_lambertians[1],
@@ -68,7 +79,7 @@ impl<'a> World<'a> {
                     x1: 555.0,
                     z0: 0.0,
                     z1: 555.0,
-                    k: 555.0,
+                    k: 0.0,
                 }),
                 Box::new(YzRect {
                     mp: &materials.v_lambertians[2],
@@ -86,8 +97,8 @@ impl<'a> World<'a> {
                     z1: 555.0,
                     k: 0.0,
                 }),
-                translation_1,
-                translation_2,
+                constant_medium_1,
+                constant_medium_2,
             ],
         }
     }
