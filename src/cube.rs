@@ -3,71 +3,82 @@ use super::hittable::*;
 use super::material::*;
 use super::ray::*;
 use super::rectangle::*;
+use super::transform::*;
 use super::vec3::*;
 use super::world::*;
 
 pub struct Cube<'a> {
     minimum: Vec3,
     maximum: Vec3,
+    material: &'a dyn Material,
     v_sides: Vec<Box<dyn Hittable + 'a>>,
 }
 
 impl<'a> Cube<'a> {
-    pub fn new(minimum: Vec3, maximum: Vec3, material: &dyn Material) -> Cube {
+    pub fn new(minimum: Vec3, maximum: Vec3, material: &'a dyn Material) -> Cube {
         Cube {
             minimum: minimum,
             maximum: maximum,
-            v_sides: vec![
-                Box::new(XyRect {
-                    mp: material,
-                    x0: minimum.x,
-                    x1: maximum.x,
-                    y0: minimum.y,
-                    y1: maximum.y,
-                    k: minimum.z,
-                }),
-                Box::new(XyRect {
-                    mp: material,
-                    x0: minimum.x,
-                    x1: maximum.x,
-                    y0: minimum.y,
-                    y1: maximum.y,
-                    k: maximum.z,
-                }),
-                Box::new(XzRect {
-                    mp: material,
-                    x0: minimum.x,
-                    x1: maximum.x,
-                    z0: minimum.z,
-                    z1: maximum.z,
-                    k: minimum.y,
-                }),
-                Box::new(XzRect {
-                    mp: material,
-                    x0: minimum.x,
-                    x1: maximum.x,
-                    z0: minimum.z,
-                    z1: maximum.z,
-                    k: maximum.z,
-                }),
-                Box::new(YzRect {
-                    mp: material,
-                    y0: minimum.y,
-                    y1: maximum.y,
-                    z0: minimum.z,
-                    z1: maximum.z,
-                    k: minimum.x,
-                }),
-                Box::new(YzRect {
-                    mp: material,
-                    y0: minimum.y,
-                    y1: maximum.y,
-                    z0: minimum.z,
-                    z1: maximum.z,
-                    k: maximum.x,
-                }),
-            ],
+            material: material,
+            v_sides: Self::make_sides(minimum, maximum, material),
         }
+    }
+
+    fn make_sides(
+        minimum: Vec3,
+        maximum: Vec3,
+        material: &'a dyn Material,
+    ) -> Vec<Box<dyn Hittable + 'a>> {
+        vec![
+            Box::new(XyRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                y0: minimum.y,
+                y1: maximum.y,
+                k: minimum.z,
+            }),
+            Box::new(XyRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                y0: minimum.y,
+                y1: maximum.y,
+                k: maximum.z,
+            }),
+            Box::new(XzRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: minimum.y,
+            }),
+            Box::new(XzRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: maximum.z,
+            }),
+            Box::new(YzRect {
+                mp: material,
+                y0: minimum.y,
+                y1: maximum.y,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: minimum.x,
+            }),
+            Box::new(YzRect {
+                mp: material,
+                y0: minimum.y,
+                y1: maximum.y,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: maximum.x,
+            }),
+        ]
     }
 }
 

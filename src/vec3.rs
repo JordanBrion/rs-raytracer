@@ -11,6 +11,7 @@ use std::ops::Sub;
 use std::ops::SubAssign;
 
 use super::random::*;
+use super::transform::*;
 
 #[derive(Copy, Clone)]
 pub struct Vec3 {

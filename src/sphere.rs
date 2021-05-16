@@ -131,18 +131,6 @@ impl<'a> Hittable for MovingSphere<'a> {
 }
 
 impl<'a> NormalOp for Sphere<'a> {
-    fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
-        let outward_normal = self.outward_normal(ray, t);
-        let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
-        (
-            front_face,
-            match front_face {
-                true => outward_normal,
-                false => -outward_normal,
-            },
-        )
-    }
-
     fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
         let hit_point = ray.point_at_parameter(t);
         (hit_point - self.center) / self.radius
@@ -160,17 +148,6 @@ impl<'a> NormalOp for &Sphere<'a> {
 }
 
 impl<'a> NormalOp for MovingSphere<'a> {
-    fn normal(&self, ray: &Ray, t: f64) -> (bool, Vec3) {
-        let outward_normal = self.outward_normal(ray, t);
-        let front_face = ray.direction.dot(&outward_normal) < 0.0f64;
-        (
-            front_face,
-            match front_face {
-                true => outward_normal,
-                false => -outward_normal,
-            },
-        )
-    }
     fn outward_normal(&self, ray: &Ray, t: f64) -> Vec3 {
         let hit_point = ray.point_at_parameter(t);
         (hit_point - self.center(ray.time)) / self.radius
