@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, rc::Rc};
 
 use super::aabb::*;
 use super::hittable::*;
@@ -7,8 +7,8 @@ use super::ray::*;
 use super::vec3::*;
 
 enum BvhChild<'a> {
-    Parent(Box<BvhNode<'a>>),
-    Leaf(&'a dyn Hittable),
+    Parent(Rc<BvhNode<'a>>),
+    Leaf(Rc<dyn Hittable + 'a>),
 }
 
 pub struct BvhNode<'a> {
@@ -18,57 +18,50 @@ pub struct BvhNode<'a> {
 }
 
 impl<'a> BvhNode<'a> {
-    pub fn new(v_hittables: &mut [&'a dyn Hittable], time0: f64, time1: f64) -> Self {
+    pub fn new(v_hittables: &[Rc<dyn Hittable + 'a>], time0: f64, time1: f64) -> BvhNode<'a> {
         let axis = random_integer_in_limit(0, 2);
-        let comparator = |hittable0: &&dyn Hittable, hittable1: &&dyn Hittable| {
+        let comparator = |hittable0: Rc<dyn Hittable>, hittable1: Rc<dyn Hittable>| {
             return match (
                 hittable0.bounding_box(0.0, 0.0),
                 hittable1.bounding_box(0.0, 0.0),
             ) {
                 (Some(aabb0), Some(aabb1)) => aabb0.minimum[axis]
                     .partial_cmp(&aabb1.minimum[axis])
-                    .unwrap_or(Ordering::Less),
+                    .unwrap_or(Ordering::Greater),
                 (Some(aabb0), None) => aabb0.minimum[axis]
                     .partial_cmp(&Vec3::default()[axis])
-                    .unwrap_or(Ordering::Less),
+                    .unwrap_or(Ordering::Greater),
                 (None, Some(aabb1)) => Vec3::default()[axis]
                     .partial_cmp(&aabb1.minimum[axis])
-                    .unwrap_or(Ordering::Less),
-                _ => Ordering::Less,
+                    .unwrap_or(Ordering::Greater),
+                _ => Ordering::Greater,
             };
         };
         let object_span = v_hittables.len();
         let (left, right) = match object_span {
             1 => (
-                BvhChild::Leaf(v_hittables[0]),
-                BvhChild::Leaf(v_hittables[0]),
+                BvhChild::Leaf(v_hittables[0].clone()),
+                BvhChild::Leaf(v_hittables[0].clone()),
             ),
             2 => {
-                if comparator(&v_hittables[0], &v_hittables[1]) == Ordering::Less {
+                if comparator(v_hittables[0].clone(), v_hittables[1].clone()) == Ordering::Less {
                     (
-                        BvhChild::Leaf(v_hittables[0]),
-                        BvhChild::Leaf(v_hittables[1]),
+                        BvhChild::Leaf(v_hittables[0].clone()),
+                        BvhChild::Leaf(v_hittables[1].clone()),
                     )
                 } else {
                     (
-                        BvhChild::Leaf(v_hittables[1]),
-                        BvhChild::Leaf(v_hittables[0]),
+                        BvhChild::Leaf(v_hittables[1].clone()),
+                        BvhChild::Leaf(v_hittables[0].clone()),
                     )
                 }
             }
             _ => {
                 let mid = v_hittables.len() / 2;
+                let (left_array, right_array) = v_hittables.split_at(mid);
                 (
-                    BvhChild::Parent(Box::new(BvhNode::new(
-                        &mut v_hittables[..mid],
-                        time0,
-                        time1,
-                    ))),
-                    BvhChild::Parent(Box::new(BvhNode::new(
-                        &mut v_hittables[mid..],
-                        time0,
-                        time1,
-                    ))),
+                    BvhChild::Parent(Rc::new(BvhNode::new(left_array, time0, time1))),
+                    BvhChild::Parent(Rc::new(BvhNode::new(right_array, time0, time1))),
                 )
             }
         };
@@ -88,7 +81,7 @@ impl<'a> BvhNode<'a> {
 
 impl<'a> Hittable for BvhNode<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        if let Some(_) = self.aabb.hit(ray, t_min, t_max) {
+        if self.aabb.hit(ray, t_min, t_max) {
             let hit_left = self.left.hit(ray, t_min, t_max);
             let hit_right = self.right.hit(
                 ray,
@@ -99,8 +92,8 @@ impl<'a> Hittable for BvhNode<'a> {
                 },
             );
             return match (&hit_left, &hit_right) {
-                (Some(_), None) => hit_left,
                 (_, Some(_)) => hit_right,
+                (Some(_), _) => hit_left,
                 _ => None,
             };
         } else {

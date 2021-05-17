@@ -69,8 +69,8 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 }
 
 fn main() {
-    let mut ppm = PPM::new(100, 200);
-    let look_from = Vec3::new(278.0, 278.0, -800.0);
+    let mut ppm = PPM::new(200, 200);
+    let look_from = Vec3::new(478.0, 278.0, -600.0);
     let look_at = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
     let camera = Camera::new(
@@ -86,10 +86,9 @@ fn main() {
     );
     let textures = Textures::new();
     let materials = Materials::new(&textures);
-    let world = World::new_cornell_box(&materials);
-    // let bvh_root = BvhNode::new(&mut world.to_list_of_hittables(), 0.0, 1.0);
-    let samples = 200;
-    let max_depth = 50;
+    let world = World::new_final_scene(&materials);
+    let samples = 10;
+    let max_depth = 10;
     let background = Color::new(0.0, 0.0, 0.0);
 
     for j in 0..ppm.height {

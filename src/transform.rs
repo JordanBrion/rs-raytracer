@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use super::aabb::*;
 use super::angles::*;
 use super::constants::*;
@@ -10,18 +12,18 @@ use libm::{fmax, fmin};
 
 pub struct Translate<'a> {
     pub offset: Vec3,
-    pub ptr: Box<dyn Hittable + 'a>,
+    pub ptr: Rc<dyn Hittable + 'a>,
 }
 
 pub struct RotationY<'a> {
-    ptr: Box<dyn Hittable + 'a>,
+    ptr: Rc<dyn Hittable + 'a>,
     sin_theta: f64,
     cos_theta: f64,
     maybe_aabb: Option<AABB>,
 }
 
 impl<'a> RotationY<'a> {
-    pub fn new(ptr: Box<dyn Hittable + 'a>, angle_deg: f64) -> RotationY<'a> {
+    pub fn new(ptr: Rc<dyn Hittable + 'a>, angle_deg: f64) -> RotationY<'a> {
         let radians = degrees_to_radians(angle_deg);
         let sin_theta = radians.sin();
         let cos_theta = radians.cos();

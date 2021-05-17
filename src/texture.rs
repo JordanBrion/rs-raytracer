@@ -110,31 +110,30 @@ pub struct Textures {
 
 impl<'a> Textures {
     pub fn new() -> Textures {
-        let mut textures = Textures {
+        Textures {
             v_solid_colors: vec![
                 SolidColor {
-                    color_value: Vec3::new(0.65, 0.05, 0.05),
-                },
-                SolidColor {
-                    color_value: Vec3::new(0.73, 0.73, 0.73),
-                },
-                SolidColor {
-                    color_value: Vec3::new(0.12, 0.45, 0.15),
+                    color_value: Vec3::new(0.48, 0.83, 0.53),
                 },
                 SolidColor {
                     color_value: Vec3::new(7.0, 7.0, 7.0),
                 },
                 SolidColor {
-                    color_value: Vec3::new(0.0, 0.0, 0.0),
+                    color_value: Vec3::new(0.7, 0.3, 0.1),
+                },
+                SolidColor {
+                    color_value: Vec3::new(0.2, 0.4, 0.9),
                 },
                 SolidColor {
                     color_value: Vec3::new(1.0, 1.0, 1.0),
                 },
+                SolidColor {
+                    color_value: Vec3::new(0.73, 0.73, 0.73),
+                },
             ],
             v_checker_textures: Default::default(),
-            v_noise_textures: Default::default(),
-            v_image_textures: Default::default(),
-        };
-        textures
+            v_noise_textures: vec![NoiseTexture::new(0.1)],
+            v_image_textures: vec![ImageTexture::new("earthmap.jpeg")],
+        }
     }
 }

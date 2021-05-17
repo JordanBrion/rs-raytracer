@@ -25,19 +25,8 @@ impl AABB {
             ),
         }
     }
-}
 
-impl Default for AABB {
-    fn default() -> Self {
-        AABB {
-            minimum: Default::default(),
-            maximum: Default::default(),
-        }
-    }
-}
-
-impl Hittable for AABB {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    pub fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> bool {
         for i in 0..3 {
             let inv_d = 1.0 / ray.direction[i];
             let mut t0 = (self.minimum[i] - ray.origin[i]) * inv_d;
@@ -48,16 +37,18 @@ impl Hittable for AABB {
             let t_min = fmax(t0, t_min);
             let t_max = fmin(t1, t_max);
             if t_max <= t_min {
-                return None;
+                return false;
             }
         }
-        Default::default()
+        true
     }
+}
 
-    fn bounding_box(&self, _time0: f64, _time1: f64) -> Option<AABB> {
-        Some(AABB {
-            minimum: self.minimum,
-            maximum: self.maximum,
-        })
+impl Default for AABB {
+    fn default() -> Self {
+        AABB {
+            minimum: Default::default(),
+            maximum: Default::default(),
+        }
     }
 }

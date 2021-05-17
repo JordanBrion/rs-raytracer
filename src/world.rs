@@ -1,8 +1,11 @@
+use std::rc::Rc;
+
 use super::aabb::*;
 use super::bvh::*;
 use super::cube::*;
 use super::hittable::*;
 use super::material::*;
+use super::random::*;
 use super::random::*;
 use super::ray::*;
 use super::rectangle::*;
@@ -12,93 +15,107 @@ use super::vec3::*;
 use super::volume::*;
 
 pub struct World<'a> {
-    v_hittables: Vec<Box<dyn Hittable + 'a>>,
+    v_hittables: Vec<Rc<dyn Hittable + 'a>>,
 }
 
 impl<'a> World<'a> {
-    pub fn new_cornell_box(materials: &'a Materials) -> World<'a> {
-        let cube_1 = Box::new(Cube::new(
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(165.0, 330.0, 165.0),
-            &materials.v_lambertians[1],
-        ));
-        let rotation_1 = Box::new(RotationY::new(cube_1, 15.0));
-        let translation_1 = Box::new(Translate {
-            offset: Vec3::new(265.0, 0.0, 295.0),
-            ptr: rotation_1,
-        });
-        let constant_medium_1 = Box::new(ConstantMedium::new(
-            translation_1,
-            0.01,
-            &materials.v_isotropics[0],
-        ));
-        let cube_2 = Box::new(Cube::new(
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(165.0, 165.0, 165.0),
-            &materials.v_lambertians[1],
-        ));
-        let rotation_2 = Box::new(RotationY::new(cube_2, -18.0));
-        let translation_2 = Box::new(Translate {
-            offset: Vec3::new(130.0, 0.0, 65.0),
-            ptr: rotation_2,
-        });
-        let constant_medium_2 = Box::new(ConstantMedium::new(
-            translation_2,
-            0.01,
-            &materials.v_isotropics[1],
-        ));
+    pub fn new_final_scene(materials: &'a Materials) -> World<'a> {
+        let iterations = 20;
+        let mut v_hittables_1: Vec<Rc<dyn Hittable + 'a>> =
+            Vec::with_capacity(iterations * iterations);
+        for i in 0..iterations {
+            let f_i = i as f64;
+            for j in 0..iterations {
+                let f_j = j as f64;
+                let w = 100.0;
+                let x0 = -1000.0 + f_i * w;
+                let z0 = -1000.0 + f_j * w;
+                let y0 = 0.0;
+                let x1 = x0 + w;
+                let y1 = random_double_in_limit(1.0, 101.0);
+                let z1 = z0 + w;
+                v_hittables_1.push(Rc::new(Cube::new(
+                    Vec3::new(x0, y0, z0),
+                    Vec3::new(x1, y1, z1),
+                    &materials.v_lambertians[0],
+                )));
+            }
+        }
+        let center_1 = Vec3::new(400.0, 400.0, 200.0);
+        let center_2 = center_1 + Vec3::new(30.0, 0.0, 0.0);
+        let mut v_hittables_2: Vec<Rc<dyn Hittable + 'a>> = Vec::with_capacity(1000);
+        for _ in 0..1000 {
+            v_hittables_2.push(Rc::new(Sphere::new(
+                Vec3::random_in_limit(0.0, 165.0),
+                10.0,
+                &materials.v_lambertians[4],
+            )));
+        }
+
         World {
             v_hittables: vec![
-                Box::new(XyRect {
-                    mp: &materials.v_lambertians[1],
-                    x0: 0.0,
-                    x1: 555.0,
-                    y0: 0.0,
-                    y1: 555.0,
-                    k: 555.0,
+                Rc::new(BvhNode::new(&v_hittables_1, 0.0, 1.0)),
+                Rc::new(Translate {
+                    offset: Vec3::new(-100.0, 270.0, 395.0),
+                    ptr: Rc::new(RotationY::new(
+                        Rc::new(BvhNode::new(&v_hittables_2, 0.0, 1.0)),
+                        15.0,
+                    )),
                 }),
-                Box::new(XzRect {
-                    mp: &materials.v_diffuse_lights[0],
-                    x0: 113.0,
-                    x1: 443.0,
-                    z0: 127.0,
-                    z1: 432.0,
+                Rc::new(XzRect {
+                    x0: 123.0,
+                    x1: 423.0,
+                    z0: 147.0,
+                    z1: 412.0,
                     k: 554.0,
+                    mp: &materials.v_diffuse_lights[0],
                 }),
-                Box::new(XzRect {
-                    mp: &materials.v_lambertians[1],
-                    x0: 0.0,
-                    x1: 555.0,
-                    z0: 0.0,
-                    z1: 555.0,
-                    k: 555.0,
-                }),
-                Box::new(XzRect {
-                    mp: &materials.v_lambertians[1],
-                    x0: 0.0,
-                    x1: 555.0,
-                    z0: 0.0,
-                    z1: 555.0,
-                    k: 0.0,
-                }),
-                Box::new(YzRect {
-                    mp: &materials.v_lambertians[2],
-                    y0: 0.0,
-                    y1: 555.0,
-                    z0: 0.0,
-                    z1: 555.0,
-                    k: 555.0,
-                }),
-                Box::new(YzRect {
-                    mp: &materials.v_lambertians[0],
-                    y0: 0.0,
-                    y1: 555.0,
-                    z0: 0.0,
-                    z1: 555.0,
-                    k: 0.0,
-                }),
-                constant_medium_1,
-                constant_medium_2,
+                Rc::new(MovingSphere::new(
+                    center_1,
+                    center_2,
+                    0.0,
+                    1.0,
+                    50.0,
+                    &materials.v_lambertians[1],
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(260.0, 150.0, 45.0),
+                    50.0,
+                    &materials.v_dielectrics[0],
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(0.0, 150.0, 145.0),
+                    50.0,
+                    &materials.v_metals[0],
+                )),
+                Rc::new(ConstantMedium::new(
+                    Rc::new(Sphere::new(
+                        Vec3::new(360.0, 150.0, 145.0),
+                        70.0,
+                        &materials.v_dielectrics[0],
+                    )),
+                    0.2,
+                    &materials.v_isotropics[0],
+                )),
+                Rc::new(ConstantMedium::new(
+                    Rc::new(Sphere::new(
+                        Vec3::new(0.0, 0.0, 0.0),
+                        5000.0,
+                        &materials.v_dielectrics[0],
+                    )),
+                    0.0001,
+                    &materials.v_isotropics[1],
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(400.0, 200.0, 400.0),
+                    100.0,
+                    &materials.v_lambertians[2],
+                )),
+                Rc::new(Sphere::new(
+                    Vec3::new(220.0, 280.0, 300.0),
+                    80.0,
+                    &materials.v_lambertians[3],
+                )),
             ],
         }
     }
