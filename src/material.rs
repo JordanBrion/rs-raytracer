@@ -1,17 +1,15 @@
 extern crate libm;
 
-use std::rc::Rc;
-
+use super::color::*;
 use super::hittable::*;
 use super::random::*;
 use super::ray::*;
 use super::texture::*;
 use super::vec3::*;
-
 use libm::*;
 
-pub struct Lambertian {
-    pub albedo: Rc<dyn Texture>,
+pub struct Lambertian<'a> {
+    pub albedo: &'a dyn Texture,
 }
 
 pub struct Metal {
@@ -23,11 +21,20 @@ pub struct Dielectric {
     ref_idx: f64,
 }
 
-pub struct Materials {
-    pub v_lambertians: std::vec::Vec<Rc<Lambertian>>,
-    pub v_metals: std::vec::Vec<Rc<Metal>>,
-    pub v_dielectrics: std::vec::Vec<Rc<Dielectric>>,
-    pub v_diffuse_lights: std::vec::Vec<Rc<DiffuseLight>>,
+pub struct DiffuseLight<'a> {
+    emit: &'a dyn Texture,
+}
+
+pub struct Isotropic<'a> {
+    albedo: &'a dyn Texture,
+}
+
+pub struct Materials<'a> {
+    pub v_lambertians: std::vec::Vec<Lambertian<'a>>,
+    pub v_metals: std::vec::Vec<Metal>,
+    pub v_dielectrics: std::vec::Vec<Dielectric>,
+    pub v_isotropics: std::vec::Vec<Isotropic<'a>>,
+    pub v_diffuse_lights: std::vec::Vec<DiffuseLight<'a>>,
 }
 
 impl Metal {
@@ -39,220 +46,57 @@ impl Metal {
     }
 }
 
-impl Materials {
-    #[allow(dead_code)]
-    pub fn new() -> Materials {
-        Materials {
-            v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.1, 0.2, 0.5)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.8, 0.8, 0.0)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(CheckerTexture {
-                        even: Rc::new(SolidColor {
-                            color_value: Vec3::new(0.2, 0.3, 0.1),
-                        }),
-                        odd: Rc::new(SolidColor {
-                            color_value: Vec3::new(0.9, 0.9, 0.9),
-                        }),
-                    }),
-                }),
-            ],
-            v_metals: vec![Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3))],
-            v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
-            v_diffuse_lights: Default::default(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_random() -> Materials {
+impl<'a> Materials<'a> {
+    pub fn new(textures: &'a Textures) -> Materials<'a> {
         let mut materials = Materials {
             v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.5, 0.5, 0.5)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.4, 0.2, 0.1)),
-                }),
+                Lambertian {
+                    albedo: &textures.v_solid_colors[0],
+                },
+                Lambertian {
+                    albedo: &textures.v_solid_colors[2],
+                },
+                Lambertian {
+                    albedo: &textures.v_image_textures[0],
+                },
+                Lambertian {
+                    albedo: &textures.v_noise_textures[0],
+                },
+                Lambertian {
+                    albedo: &textures.v_solid_colors[5],
+                },
             ],
-            v_metals: vec![Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0))],
-            v_dielectrics: vec![Rc::new(Dielectric { ref_idx: 1.5 })],
-            v_diffuse_lights: Default::default(),
+            v_metals: vec![Metal {
+                albedo: Vec3::new(0.8, 0.8, 0.9),
+                fuzz: 1.0,
+            }],
+            v_dielectrics: vec![Dielectric { ref_idx: 1.5 }],
+            v_diffuse_lights: vec![DiffuseLight {
+                emit: &textures.v_solid_colors[1],
+            }],
+            v_isotropics: vec![
+                Isotropic {
+                    albedo: &textures.v_solid_colors[3],
+                },
+                Isotropic {
+                    albedo: &textures.v_solid_colors[4],
+                },
+            ],
         };
         for _ in -11..11 {
             for _ in -11..11 {
-                materials.v_lambertians.push(Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new_random()),
-                }));
-                materials.v_metals.push(Rc::new(Metal::new(
+                let random_textures_index =
+                    random_integer_in_limit(0, textures.v_solid_colors.len() - 1);
+                materials.v_lambertians.push(Lambertian {
+                    albedo: &textures.v_solid_colors[random_textures_index],
+                });
+                materials.v_metals.push(Metal::new(
                     random_color_in_limit(0.5, 1.0),
                     random_double_in_limit(0.0, 0.5),
-                )));
+                ));
             }
         }
         materials
-    }
-
-    #[allow(dead_code)]
-    pub fn new_two_checkers() -> Materials {
-        Materials {
-            v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(CheckerTexture {
-                    odd: Rc::new(SolidColor::new(0.2, 0.3, 0.1)),
-                    even: Rc::new(SolidColor::new(0.9, 0.9, 0.9)),
-                }),
-            })],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: Default::default(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_two_perlins() -> Materials {
-        Materials {
-            v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(NoiseTexture::new(2.0)),
-            })],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: Default::default(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_earth() -> Materials {
-        Materials {
-            v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(ImageTexture::new(
-                    "/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg",
-                )),
-            })],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: Default::default(),
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_light_source() -> Materials {
-        Materials {
-            v_lambertians: vec![Rc::new(Lambertian {
-                albedo: Rc::new(NoiseTexture::new(4.0)),
-            })],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: vec![Rc::new(DiffuseLight {
-                emit: Box::new(SolidColor::new(4.0, 4.0, 4.0)),
-            })],
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_empty_cornell_box() -> Materials {
-        Materials {
-            v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.65, 0.05, 0.05)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.12, 0.45, 0.15)),
-                }),
-            ],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: vec![Rc::new(DiffuseLight {
-                emit: Box::new(SolidColor::new(15.0, 15.0, 15.0)),
-            })],
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_cornell_box() -> Materials {
-        Materials {
-            v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.65, 0.05, 0.05)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.12, 0.45, 0.15)),
-                }),
-            ],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: vec![Rc::new(DiffuseLight {
-                emit: Box::new(SolidColor::new(15.0, 15.0, 15.0)),
-            })],
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn new_rotated_cornell_box() -> Materials {
-        Self::new_cornell_box()
-    }
-
-    #[allow(dead_code)]
-    pub fn new_smoked_cornell_box() -> Materials {
-        Materials {
-            v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.65, 0.05, 0.05)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.12, 0.45, 0.15)),
-                }),
-            ],
-            v_metals: Default::default(),
-            v_dielectrics: Default::default(),
-            v_diffuse_lights: vec![Rc::new(DiffuseLight {
-                emit: Box::new(SolidColor::new(7.0, 7.0, 7.0)),
-            })],
-        }
-    }
-
-    pub fn final_scene_book2() -> Materials {
-        Materials {
-            v_lambertians: vec![
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.48, 0.83, 0.53)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.7, 0.3, 0.1)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(ImageTexture::new("/home/jordanbrion/Documents/rust/rs-raytracer/resources/earthmap.jpg")),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(NoiseTexture::new(0.1)),
-                }),
-                Rc::new(Lambertian {
-                    albedo: Rc::new(SolidColor::new(0.73, 0.73, 0.73)),
-                }),
-            ],
-            v_metals: vec![
-                Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0))
-            ],
-            v_dielectrics: vec![
-                Rc::new(Dielectric {
-                    ref_idx: 1.5
-                })
-            ],
-            v_diffuse_lights: vec![Rc::new(DiffuseLight {
-                emit: Box::new(SolidColor::new(7.0, 7.0, 7.0)),
-            })],
-        }
     }
 }
 
@@ -264,13 +108,16 @@ pub trait Material {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool;
-
-    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
-        Vec3::new(0.0, 0.0, 0.0)
+    fn emitted(&self, u: f64, v: f64, point: &Vec3) -> Color {
+        Color::new(0.0, 0.0, 0.0)
     }
 }
 
-impl Material for Lambertian {
+pub trait MaterialOp {
+    fn material(&self) -> &dyn Material;
+}
+
+impl<'a> Material for Lambertian<'a> {
     fn scatter(
         &self,
         ray_in: &Ray,
@@ -280,7 +127,7 @@ impl Material for Lambertian {
     ) -> bool {
         let scatter_direction = record.normal + random_in_unit_sphere();
         *scattered = Ray::new(record.p, scatter_direction, ray_in.time);
-        *attenuation = self.albedo.value(record.u, record.v, record.p);
+        *attenuation = self.albedo.value(record.u, record.v, &record.p);
         true
     }
 }
@@ -343,11 +190,22 @@ impl Material for Dielectric {
     }
 }
 
-pub struct DiffuseLight {
-    emit: Box<dyn Texture>,
+impl<'a> Material for DiffuseLight<'a> {
+    fn scatter(
+        &self,
+        _ray_in: &Ray,
+        _record: &HitRecord,
+        _attenuation: &mut Vec3,
+        _scattered: &mut Ray,
+    ) -> bool {
+        false
+    }
+    fn emitted(&self, u: f64, v: f64, point: &Vec3) -> Color {
+        self.emit.value(u, v, point)
+    }
 }
 
-impl Material for DiffuseLight {
+impl<'a> Material for Isotropic<'a> {
     fn scatter(
         &self,
         ray_in: &Ray,
@@ -355,23 +213,8 @@ impl Material for DiffuseLight {
         attenuation: &mut Vec3,
         scattered: &mut Ray,
     ) -> bool {
-        false
-    }
-
-    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Vec3 {
-        self.emit.value(u, v, p)
-    }
-}
-
-pub struct Isotropic {
-    pub albedo: Rc<dyn Texture>,
-}
-
-impl Material for Isotropic {
-
-    fn scatter(&self, ray_in: &Ray, record: &HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool {
         *scattered = Ray::new(record.p, random_in_unit_sphere(), ray_in.time);
-        *attenuation = self.albedo.value(record.u, record.v, record.p);
+        *attenuation = self.albedo.value(record.u, record.v, &record.p);
         return true;
     }
 }

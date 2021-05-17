@@ -30,32 +30,14 @@ pub fn random_double() -> f64 {
     rng.gen::<f64>()
 }
 
-pub fn random_v_double(n: usize) -> std::vec::Vec<f64> {
-    let mut v = vec![0.0; n];
-    for i in 0..n {
-        v[i] = random_double();
-    }
-    v
-}
-
-pub fn random_v_vec3(n: usize) -> std::vec::Vec<Vec3> {
-    let mut v = vec![Default::default(); n];
-    for i in 0..n {
-        v[i] = random_vec3_in_limit(-1.0, 1.0);
-    }
-    v
-}
-
 pub fn random_double_in_limit(min: f64, max: f64) -> f64 {
     min + (max - min) * random_double()
 }
 
-pub fn random_int() -> isize {
-    random_double() as isize
-}
-
-pub fn random_int_in_limit(min: isize, max: isize) -> isize {
-    min + (max - min) * random_int()
+pub fn random_integer_in_limit(min: usize, max: usize) -> usize {
+    let f_min = min as f64;
+    let f_max = (max + 1) as f64;
+    (f_min + (f_max - f_min) * random_double()) as usize
 }
 
 pub fn random_in_unit_disk() -> Vec3 {
@@ -65,14 +47,6 @@ pub fn random_in_unit_disk() -> Vec3 {
             return p;
         }
     }
-}
-
-pub fn random_vec3_in_limit(min: f64, max: f64) -> Vec3 {
-    Vec3::new(
-        random_double_in_limit(min, max),
-        random_double_in_limit(min, max),
-        random_double_in_limit(min, max),
-    )
 }
 
 pub fn random_unit_vector() -> Vec3 {
@@ -87,5 +61,9 @@ pub fn random_color() -> Vec3 {
 }
 
 pub fn random_color_in_limit(min: f64, max: f64) -> Vec3 {
-    random_vec3_in_limit(min, max)
+    Vec3::new(
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+        random_double_in_limit(min, max),
+    )
 }

@@ -1,90 +1,103 @@
 use super::aabb::*;
 use super::hittable::*;
-use super::hittable_list::*;
 use super::material::*;
 use super::ray::*;
-use super::rect::*;
+use super::rectangle::*;
+use super::transform::*;
 use super::vec3::*;
+use super::world::*;
 
-use std::rc::*;
-
-pub struct Cube {
-    box_min: Vec3,
-    box_max: Vec3,
-    sides: HittableList,
+pub struct Cube<'a> {
+    minimum: Vec3,
+    maximum: Vec3,
+    material: &'a dyn Material,
+    v_sides: Vec<Box<dyn Hittable + 'a>>,
 }
 
-impl Cube {
-    pub fn new(p0: Vec3, p1: Vec3, ptr: Rc<dyn Material>) -> Cube {
-        let mut sides: HittableList = Default::default();
-        sides.add(Rc::new(YzRect {
-            y0: p0.y(),
-            y1: p1.y(),
-            z0: p0.z(),
-            z1: p1.z(),
-            k: p0.x(),
-            mp: ptr.clone(),
-        }));
-
-        sides.add(Rc::new(YzRect {
-            y0: p0.y(),
-            y1: p1.y(),
-            z0: p0.z(),
-            z1: p1.z(),
-            k: p1.x(),
-            mp: ptr.clone(),
-        }));
-
-        sides.add(Rc::new(XzRect {
-            x0: p0.x(),
-            x1: p1.x(),
-            z0: p0.z(),
-            z1: p1.z(),
-            k: p0.y(),
-            mp: ptr.clone(),
-        }));
-
-        sides.add(Rc::new(XzRect {
-            x0: p0.x(),
-            x1: p1.x(),
-            z0: p0.z(),
-            z1: p1.z(),
-            k: p1.y(),
-            mp: ptr.clone(),
-        }));
-
-        sides.add(Rc::new(XyRect {
-            x0: p0.x(),
-            x1: p1.x(),
-            y0: p0.y(),
-            y1: p1.y(),
-            k: p0.z(),
-            mp: ptr.clone(),
-        }));
-
-        sides.add(Rc::new(XyRect {
-            x0: p0.x(),
-            x1: p1.x(),
-            y0: p0.y(),
-            y1: p1.y(),
-            k: p1.z(),
-            mp: ptr.clone(),
-        }));
-
+impl<'a> Cube<'a> {
+    pub fn new(minimum: Vec3, maximum: Vec3, material: &'a dyn Material) -> Cube {
         Cube {
-            box_min: p0,
-            box_max: p1,
-            sides: sides,
+            minimum: minimum,
+            maximum: maximum,
+            material: material,
+            v_sides: Self::make_sides(minimum, maximum, material),
         }
     }
+
+    fn make_sides(
+        minimum: Vec3,
+        maximum: Vec3,
+        material: &'a dyn Material,
+    ) -> Vec<Box<dyn Hittable + 'a>> {
+        vec![
+            Box::new(XyRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                y0: minimum.y,
+                y1: maximum.y,
+                k: minimum.z,
+            }),
+            Box::new(XyRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                y0: minimum.y,
+                y1: maximum.y,
+                k: maximum.z,
+            }),
+            Box::new(XzRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: minimum.y,
+            }),
+            Box::new(XzRect {
+                mp: material,
+                x0: minimum.x,
+                x1: maximum.x,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: maximum.z,
+            }),
+            Box::new(YzRect {
+                mp: material,
+                y0: minimum.y,
+                y1: maximum.y,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: minimum.x,
+            }),
+            Box::new(YzRect {
+                mp: material,
+                y0: minimum.y,
+                y1: maximum.y,
+                z0: minimum.z,
+                z1: maximum.z,
+                k: maximum.x,
+            }),
+        ]
+    }
 }
 
-impl Hittable for Cube {
+impl<'a> Hittable for Cube<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        self.sides.hit(ray, t_min, t_max)
+        let mut closest_record = None;
+        let mut closest_so_far = t_max;
+        for plane in &self.v_sides {
+            if let Some(record) = plane.hit(ray, t_min, closest_so_far) {
+                closest_so_far = record.t;
+                closest_record = Some(record);
+            }
+        }
+        return closest_record;
     }
-
-    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
-        Some(AABB::new(self.box_min, self.box_max))
+    fn bounding_box(&self, time0: f64, time1: f64) -> Option<AABB> {
+        Some(AABB {
+            minimum: self.minimum,
+            maximum: self.maximum,
+        })
     }
 }

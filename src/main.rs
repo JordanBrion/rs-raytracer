@@ -4,62 +4,63 @@ mod aabb;
 mod angles;
 mod bvh;
 mod camera;
+mod color;
 mod constants;
+mod cube;
 mod hittable;
 mod material;
-mod noise;
+mod normal;
+mod perlin;
 mod ppm;
 mod random;
 mod ray;
+mod rectangle;
 mod sphere;
 mod texture;
+mod transform;
+mod uv;
 mod vec3;
-mod hittable_list;
-mod interpolation;
-mod rect;
-mod cube;
-mod translate;
-mod rotate;
+mod volume;
+mod world;
 
+use bvh::*;
 use camera::*;
+use color::*;
 use constants::*;
 use hittable::*;
 use material::*;
 use ppm::*;
 use random::*;
 use ray::*;
+use texture::*;
 use vec3::*;
-use hittable_list::*;
+use world::*;
 
-fn color(x: f64, y: f64, z: f64) -> Vec3 {
-    Vec3::new(x, y, z)
-}
-
-fn ray_color(ray: &Ray, background_color: Vec3, world: &HittableList, depth: i32) -> Vec3 {
+fn ray_color(ray: &Ray, background: &Color, hittable: &dyn Hittable, depth: i32) -> Vec3 {
     if depth <= 0 {
         Default::default()
-    } else if let Some(record) = world.hit(ray, 0.0001, INFINITY) {
+    } else if let Some(record) = hittable.hit(ray, 0.0001, INFINITY) {
         let mut scattered = Default::default();
         let mut attenuation = Default::default();
-        let emitted = record.material.emitted(record.u, record.v, record.p);
+        let emitted = record.material.emitted(record.u, record.v, &record.p);
         if record
             .material
             .scatter(&ray, &record, &mut attenuation, &mut scattered)
         {
-            emitted + attenuation * ray_color(&scattered, background_color, world, depth - 1)
+            emitted + attenuation * ray_color(&scattered, background, hittable, depth - 1)
         } else {
             emitted
         }
     } else {
-        background_color
+        *background
     }
 }
 
 fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
     let scale = 1.0 / samples_per_pixel as f64;
-    let r_scaled = (scale * color.x()).sqrt();
-    let g_scaled = (scale * color.y()).sqrt();
-    let b_scaled = (scale * color.z()).sqrt();
+    let r_scaled = (scale * color.x).sqrt();
+    let g_scaled = (scale * color.y).sqrt();
+    let b_scaled = (scale * color.z).sqrt();
     RGB {
         r: (256.0 * num::clamp(r_scaled, 0.0, 0.999)) as u8,
         g: (256.0 * num::clamp(g_scaled, 0.0, 0.999)) as u8,
@@ -68,8 +69,8 @@ fn gamma_correction(color: Vec3, samples_per_pixel: i32) -> RGB {
 }
 
 fn main() {
-    let mut ppm = PPM::new(100, 200);
-    let look_from = Vec3::new(278.0, 800.0, -800.0);
+    let mut ppm = PPM::new(200, 200);
+    let look_from = Vec3::new(478.0, 278.0, -600.0);
     let look_at = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
     let camera = Camera::new(
@@ -83,11 +84,12 @@ fn main() {
         0.0,
         1.0,
     );
-    let materials = Materials::final_scene_book2();
-    let world = HittableList::final_scene_book2(&materials);
-    let samples = 100;
-    let max_depth = 50;
-    let background_color= Vec3::new(0.0, 0.0, 0.0);
+    let textures = Textures::new();
+    let materials = Materials::new(&textures);
+    let world = World::new_final_scene(&materials);
+    let samples = 10;
+    let max_depth = 10;
+    let background = Color::new(0.0, 0.0, 0.0);
 
     for j in 0..ppm.height {
         for i in 0..ppm.width {
@@ -96,7 +98,7 @@ fn main() {
                 let u = (i as f64 + random_double()) / ppm.width as f64;
                 let v = (j as f64 + random_double()) / ppm.height as f64;
                 let ray = camera.get_ray(u, v);
-                c += ray_color(&ray, background_color, &world, max_depth);
+                c += ray_color(&ray, &background, &world, max_depth);
             }
             ppm.set_pixel(i, ppm.height - j, gamma_correction(c, samples));
         }
